@@ -33,7 +33,7 @@ class Home extends StatelessWidget {
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.height * (4/3),
-                              maxHeight: MediaQuery.of(context).size.height * 0.8,
+                              maxHeight: MediaQuery.of(context).size.height * 0.6,
                             ),
                             child: AspectRatio(
                               aspectRatio: 4 / 3,
