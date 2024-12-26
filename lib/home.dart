@@ -1,4 +1,5 @@
 // home.dart
+import 'package:canvas_app/page_content.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'canvas_provider.dart';
@@ -37,26 +38,7 @@ class Home extends StatelessWidget {
                             ),
                             child: AspectRatio(
                               aspectRatio: 4 / 3,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 10,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Drawing Area',
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              child: PageContent()
                             ),
                           ),
                         ),
