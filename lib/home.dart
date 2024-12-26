@@ -35,6 +35,7 @@ class Home extends StatelessWidget {
                         boundaryMargin: const EdgeInsets.all(double.infinity),
                         minScale: 0.1,
                         maxScale: 5.0,
+                        panEnabled: Provider.of<EditModeProvider>(context).currentMode == null, 
                         child: Center(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
@@ -152,56 +153,6 @@ class Home extends StatelessWidget {
               ),
             ),
 
-            // Right Toolbar
-            // Positioned(
-            //   top: 80,
-            //   right: 16,
-            //   child: Container(
-            //     padding: const EdgeInsets.all(8),
-            //     decoration: BoxDecoration(
-            //       color: theme.colorScheme.surface,
-            //       borderRadius: BorderRadius.circular(12),
-            //       boxShadow: [
-            //         BoxShadow(
-            //           color: Colors.black.withOpacity(0.3),
-            //           blurRadius: 8,
-            //         ),
-            //       ],
-            //     ),
-            //     child: Column(
-            //       children: [
-            //         IconButton(
-            //           icon: const Icon(Icons.edit),
-            //           tooltip: 'Pencil',
-            //           onPressed: () {
-            //             // Select pencil tool
-            //           },
-            //         ),
-            //         IconButton(
-            //           icon: const Icon(Icons.text_fields),
-            //           tooltip: 'Text',
-            //           onPressed: () {
-            //             // Select text tool
-            //           },
-            //         ),
-            //         IconButton(
-            //           icon: const Icon(Icons.image),
-            //           tooltip: 'Image',
-            //           onPressed: () {
-            //             // Select image tool
-            //           },
-            //         ),
-            //         IconButton(
-            //           icon: const Icon(Icons.shape_line),
-            //           tooltip: 'Shape',
-            //           onPressed: () {
-            //             // Select shape tool
-            //           },
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
             Positioned(
               top: 80,
               right: 16,
