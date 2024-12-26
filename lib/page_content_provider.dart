@@ -21,4 +21,11 @@ class PageContentProvider extends ChangeNotifier {
     _pageDrawings.clear();
     notifyListeners();
   }
+
+  void updateLastDrawing(int page, Path path) {
+    if (_pageDrawings[page]?.isNotEmpty ?? false) {
+      _pageDrawings[page]!.last = path;
+      notifyListeners();
+    }
+  }
 }

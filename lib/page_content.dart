@@ -4,8 +4,15 @@ import 'canvas_provider.dart';
 import 'edit_mode_provider.dart';
 import 'page_content_provider.dart';
 
-class PageContent extends StatelessWidget {
+class PageContent extends StatefulWidget {
   const PageContent({super.key});
+
+  @override
+  State<PageContent> createState() => _PageContentState();
+}
+
+class _PageContentState extends State<PageContent> {
+  Path? currentPath;
 
   @override
   Widget build(BuildContext context) {
@@ -13,24 +20,33 @@ class PageContent extends StatelessWidget {
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
 
-    Path currentPath = Path();
-
     return GestureDetector(
       onPanStart: (details) {
         if (currentMode == EditMode.pencil) {
-          currentPath = Path();
-          currentPath.moveTo(details.localPosition.dx, details.localPosition.dy);
+          currentPath = Path()
+            ..moveTo(details.localPosition.dx, details.localPosition.dy);
+          // Create a copy of the path to store in the provider
+          pageContentProvider.addDrawing(
+            currentPage, 
+            Path()..addPath(currentPath!, Offset.zero)
+          );
         }
       },
       onPanUpdate: (details) {
-        if (currentMode == EditMode.pencil) {
-          currentPath.lineTo(details.localPosition.dx, details.localPosition.dy);
-          pageContentProvider.addDrawing(currentPage, currentPath);
+        if (currentMode == EditMode.pencil && currentPath != null) {
+          setState(() {
+            currentPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
+            // Update the last path in the provider with the new points
+            pageContentProvider.updateLastDrawing(
+              currentPage, 
+              Path()..addPath(currentPath!, Offset.zero)
+            );
+          });
         }
       },
       onPanEnd: (details) {
         if (currentMode == EditMode.pencil) {
-          // Optionally handle path completion here
+          currentPath = null;
         }
       },
       child: Container(
