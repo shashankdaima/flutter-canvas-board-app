@@ -1,4 +1,5 @@
 // home.dart
+import 'package:canvas_app/edit_mode_provider.dart';
 import 'package:canvas_app/page_content.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,12 +11,15 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
-    return ChangeNotifierProvider(
-      create: (_) => CanvasState(),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.background,
-        body: Stack(
+
+    return Scaffold(
+      backgroundColor: theme.colorScheme.background,
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => CanvasState()),
+          ChangeNotifierProvider(create: (_) => EditModeProvider()),
+        ],
+        child: Stack(
           children: [
             // Main Canvas Area
             Center(
@@ -26,20 +30,21 @@ class Home extends StatelessWidget {
                     onPageChanged: canvasState.setCurrentPage,
                     itemBuilder: (context, index) {
                       return InteractiveViewer(
-                        transformationController: canvasState.transformationController,
+                        transformationController:
+                            canvasState.transformationController,
                         boundaryMargin: const EdgeInsets.all(double.infinity),
                         minScale: 0.1,
                         maxScale: 5.0,
                         child: Center(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.height * (4/3),
-                              maxHeight: MediaQuery.of(context).size.height * 0.6,
+                              maxWidth:
+                                  MediaQuery.of(context).size.height * (4 / 3),
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.6,
                             ),
                             child: AspectRatio(
-                              aspectRatio: 4 / 3,
-                              child: PageContent()
-                            ),
+                                aspectRatio: 4 / 3, child: PageContent()),
                           ),
                         ),
                       );
@@ -69,7 +74,8 @@ class Home extends StatelessWidget {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surfaceVariant,
                             borderRadius: BorderRadius.circular(12),
@@ -101,7 +107,8 @@ class Home extends StatelessWidget {
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(24),
@@ -114,7 +121,8 @@ class Home extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.arrow_left),
                             onPressed: canvasState.currentPage > 0
-                                ? () => canvasState.setCurrentPage(canvasState.currentPage - 1)
+                                ? () => canvasState
+                                    .setCurrentPage(canvasState.currentPage - 1)
                                 : null,
                           ),
                           const SizedBox(width: 8),
@@ -125,8 +133,10 @@ class Home extends StatelessWidget {
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.arrow_right),
-                            onPressed: canvasState.currentPage < canvasState.pageCount - 1
-                                ? () => canvasState.setCurrentPage(canvasState.currentPage + 1)
+                            onPressed: canvasState.currentPage <
+                                    canvasState.pageCount - 1
+                                ? () => canvasState
+                                    .setCurrentPage(canvasState.currentPage + 1)
                                 : null,
                           ),
                           const SizedBox(width: 16),
@@ -143,6 +153,55 @@ class Home extends StatelessWidget {
             ),
 
             // Right Toolbar
+            // Positioned(
+            //   top: 80,
+            //   right: 16,
+            //   child: Container(
+            //     padding: const EdgeInsets.all(8),
+            //     decoration: BoxDecoration(
+            //       color: theme.colorScheme.surface,
+            //       borderRadius: BorderRadius.circular(12),
+            //       boxShadow: [
+            //         BoxShadow(
+            //           color: Colors.black.withOpacity(0.3),
+            //           blurRadius: 8,
+            //         ),
+            //       ],
+            //     ),
+            //     child: Column(
+            //       children: [
+            //         IconButton(
+            //           icon: const Icon(Icons.edit),
+            //           tooltip: 'Pencil',
+            //           onPressed: () {
+            //             // Select pencil tool
+            //           },
+            //         ),
+            //         IconButton(
+            //           icon: const Icon(Icons.text_fields),
+            //           tooltip: 'Text',
+            //           onPressed: () {
+            //             // Select text tool
+            //           },
+            //         ),
+            //         IconButton(
+            //           icon: const Icon(Icons.image),
+            //           tooltip: 'Image',
+            //           onPressed: () {
+            //             // Select image tool
+            //           },
+            //         ),
+            //         IconButton(
+            //           icon: const Icon(Icons.shape_line),
+            //           tooltip: 'Shape',
+            //           onPressed: () {
+            //             // Select shape tool
+            //           },
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             Positioned(
               top: 80,
               right: 16,
@@ -158,37 +217,117 @@ class Home extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: 'Pencil',
-                      onPressed: () {
-                        // Select pencil tool
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.text_fields),
-                      tooltip: 'Text',
-                      onPressed: () {
-                        // Select text tool
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.image),
-                      tooltip: 'Image',
-                      onPressed: () {
-                        // Select image tool
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.shape_line),
-                      tooltip: 'Shape',
-                      onPressed: () {
-                        // Select shape tool
-                      },
-                    ),
-                  ],
+                child: Consumer<EditModeProvider>(
+                  builder: (context, editModeProvider, _) {
+                    return Column(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Pencil',
+                          color: editModeProvider.currentMode == EditMode.pencil
+                              ? theme.colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            if (editModeProvider.currentMode == EditMode.pencil) {
+                              editModeProvider.setMode(null);
+                            } else {
+                              editModeProvider.setMode(EditMode.pencil);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (editModeProvider.currentMode ==
+                                    EditMode.pencil) {
+                                  return Colors.grey.shade900;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.text_fields),
+                          tooltip: 'Text',
+                          color: editModeProvider.currentMode == EditMode.text
+                              ? theme.colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            if (editModeProvider.currentMode == EditMode.text) {
+                              editModeProvider.setMode(null);
+                            } else {
+                              editModeProvider.setMode(EditMode.text);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (editModeProvider.currentMode ==
+                                    EditMode.text) {
+                                  return Colors.grey.shade900;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.image),
+                          tooltip: 'Image',
+                          color: editModeProvider.currentMode == EditMode.image
+                              ? theme.colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            if (editModeProvider.currentMode == EditMode.image) {
+                              editModeProvider.setMode(null);
+                            } else {
+                              editModeProvider.setMode(EditMode.image);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (editModeProvider.currentMode ==
+                                    EditMode.image) {
+                                  return Colors.grey.shade900;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.shape_line),
+                          tooltip: 'Shape',
+                          color: editModeProvider.currentMode == EditMode.shape
+                              ? theme.colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            if (editModeProvider.currentMode == EditMode.shape) {
+                              editModeProvider.setMode(null);
+                            } else {
+                              editModeProvider.setMode(EditMode.shape);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (editModeProvider.currentMode ==
+                                    EditMode.shape) {
+                                  return Colors.grey.shade900;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
