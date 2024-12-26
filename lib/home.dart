@@ -1,6 +1,7 @@
 // home.dart
 import 'package:canvas_app/edit_mode_provider.dart';
 import 'package:canvas_app/page_content.dart';
+import 'package:canvas_app/page_content_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'canvas_provider.dart';
@@ -18,6 +19,8 @@ class Home extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => CanvasState()),
           ChangeNotifierProvider(create: (_) => EditModeProvider()),
+          ChangeNotifierProvider(create: (_) => PageContentProvider()),
+
         ],
         child: Stack(
           children: [
