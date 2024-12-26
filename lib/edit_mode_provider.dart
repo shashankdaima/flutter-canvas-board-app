@@ -18,6 +18,7 @@ class EditModeProvider extends ChangeNotifier {
 
 enum EditMode {
   pencil,
+  erasor,
   text,
   image,
   shape,

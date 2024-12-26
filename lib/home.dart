@@ -201,6 +201,32 @@ class Home extends StatelessWidget {
                             ),
                           ),
                         ),
+                         IconButton(
+                          icon: const Icon(Icons.cleaning_services),
+                          tooltip: 'Erasor',
+                          color: editModeProvider.currentMode == EditMode.erasor
+                              ? theme.colorScheme.primary
+                              : null,
+                          onPressed: () {
+                            if (editModeProvider.currentMode == EditMode.erasor) {
+                              editModeProvider.setMode(null);
+                            } else {
+                              editModeProvider.setMode(EditMode.erasor);
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (editModeProvider.currentMode ==
+                                    EditMode.erasor) {
+                                  return Colors.grey.shade900;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.text_fields),
                           tooltip: 'Text',
