@@ -1,4 +1,4 @@
-import 'package:canvas_app/home.dart';
+import 'package:canvas_app/widgets/home.dart';
 import 'package:flutter/material.dart';
 
 void main() {

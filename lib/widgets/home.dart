@@ -1,10 +1,10 @@
 // home.dart
-import 'package:canvas_app/edit_mode_provider.dart';
-import 'package:canvas_app/page_content.dart';
+import 'package:canvas_app/providers/edit_mode_provider.dart';
+import 'package:canvas_app/widgets/page_content.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'canvas_provider.dart';
+import '../providers/canvas_provider.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});

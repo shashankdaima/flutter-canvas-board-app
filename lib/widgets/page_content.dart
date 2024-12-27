@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'canvas_provider.dart';
-import 'edit_mode_provider.dart';
-import 'models/drawing_elements/drawing_element.dart';
-import 'models/drawing_elements/pencil_element.dart';
-import 'providers/page_content_provider.dart';
-import 'package:movable/movable.dart';
+import '../providers/canvas_provider.dart';
+import '../providers/edit_mode_provider.dart';
+import '../models/drawing_elements/drawing_element.dart';
+import '../models/drawing_elements/pencil_element.dart';
+import '../providers/page_content_provider.dart';
 class PageContent extends StatefulWidget {
   const PageContent({super.key});
 
