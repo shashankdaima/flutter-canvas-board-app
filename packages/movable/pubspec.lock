@@ -50,7 +50,7 @@ packages:
     source: hosted
     version: "1.0.8"
   defer_pointer:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: defer_pointer
       sha256: d69e6f8c1d0f052d2616cc1db3782e0ea73f42e4c6f6122fd1a548dfe79faf02
@@ -82,23 +82,15 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
+      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "2.0.3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
-  interactive_viewer_2:
-    dependency: "direct main"
-    description:
-      name: interactive_viewer_2
-      sha256: aa1fa1d154bf784e2b597442e1a62b73dec57271d46154426f790af8dfa6a16a
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.10"
   leak_tracker:
     dependency: transitive
     description:
@@ -127,10 +119,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
+      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.1"
+    version: "2.1.1"
   matcher:
     dependency: transitive
     description:
@@ -155,21 +147,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
-  movable:
-    dependency: "direct main"
-    description:
-      path: "packages/movable"
-      relative: true
-    source: path
-    version: "1.0.0+1"
-  nested:
-    dependency: transitive
-    description:
-      name: nested
-      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
   path:
     dependency: transitive
     description:
@@ -178,14 +155,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.0"
-  provider:
-    dependency: "direct main"
-    description:
-      name: provider
-      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -256,5 +225,5 @@ packages:
     source: hosted
     version: "14.3.0"
 sdks:
-  dart: ">=3.6.0 <4.0.0"
+  dart: ">=3.4.0 <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"
