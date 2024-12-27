@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
+
 class PageContentProvider extends ChangeNotifier {
   // Store elements per page
   final Map<int, List<DrawingElement>> _pageElements = {};
-  
+
   // Counter for generating z-indices per page
   final Map<int, int> _zIndexCounters = {};
 
@@ -18,22 +19,23 @@ class PageContentProvider extends ChangeNotifier {
 
   // Get next z-index for a page
   int _getNextZIndex(int pageIndex) {
-    return _zIndexCounters.update(pageIndex, (value) => value + 1, ifAbsent: () => 0);
+    return _zIndexCounters.update(pageIndex, (value) => value + 1,
+        ifAbsent: () => 0);
   }
 
   // Add a new drawing element
   void addDrawing(int pageIndex, Path path) {
     final bounds = path.getBounds();
     final zIndex = _getNextZIndex(pageIndex);
-    
+
     final element = PencilElement(
       path: path,
       zIndex: zIndex,
       bounds: bounds,
     );
-    
+
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);
-    
+
     // Sort elements by z-index after adding
     _pageElements[pageIndex]?.sort((a, b) => a.zIndex.compareTo(b.zIndex));
     notifyListeners();
@@ -51,12 +53,12 @@ class PageContentProvider extends ChangeNotifier {
   // Select a single element
   void selectElement(int pageIndex, String elementId) {
     final elements = getPageElements(pageIndex);
-    
+
     // Deselect all elements
     for (var element in elements) {
       element.isSelected = false;
     }
-    
+
     // Select the target element
     final targetElement = getElementById(pageIndex, elementId);
     if (targetElement != null) {
@@ -69,7 +71,7 @@ class PageContentProvider extends ChangeNotifier {
   void updateElementZIndex(int pageIndex, String elementId, int newZIndex) {
     final elements = getPageElements(pageIndex);
     final elementIndex = elements.indexWhere((e) => e.id == elementId);
-    
+
     if (elementIndex != -1) {
       final updatedElement = elements[elementIndex].copyWith(zIndex: newZIndex);
       elements[elementIndex] = updatedElement;
@@ -90,7 +92,7 @@ class PageContentProvider extends ChangeNotifier {
         bounds: bounds,
         isSelected: elements.last.isSelected,
       );
-      
+
       elements[elements.length - 1] = updatedElement;
       notifyListeners();
     }
@@ -107,6 +109,12 @@ class PageContentProvider extends ChangeNotifier {
   void clearAllPages() {
     _pageElements.clear();
     _zIndexCounters.clear();
+    notifyListeners();
+  }
+
+  void removeElement(int pageIndex, String elementId) {
+    final elements = getPageElements(pageIndex);
+    elements.removeWhere((element) => element.id == elementId);
     notifyListeners();
   }
 }

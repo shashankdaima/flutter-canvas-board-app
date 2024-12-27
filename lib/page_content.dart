@@ -15,6 +15,40 @@ class PageContent extends StatefulWidget {
 
 class _PageContentState extends State<PageContent> {
   Path? currentPath;
+  Path? eraserPath;
+  final double eraserWidth = 20.0; // Adjust eraser width as needed
+
+  // Helper method to check if a point is near a path
+  bool isPointNearPath(Offset point, Path path, double threshold) {
+    final metrics = path.computeMetrics();
+    for (var metric in metrics) {
+      for (double t = 0; t <= metric.length; t += 5) {
+        final tangent = metric.getTangentForOffset(t);
+        if (tangent != null) {
+          final distance = (tangent.position - point).distance;
+          if (distance < threshold) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // Helper method to find elements to erase
+  List<String> findElementsToErase(Offset point, List<DrawingElement> elements) {
+    final elementsToErase = <String>[];
+    
+    for (var element in elements) {
+      if (element is PencilElement) {
+        if (isPointNearPath(point, element.path, eraserWidth / 2)) {
+          elementsToErase.add(element.id);
+        }
+      }
+    }
+    
+    return elementsToErase;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,56 +56,93 @@ class _PageContentState extends State<PageContent> {
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
 
-    return GestureDetector(
-      onPanStart: (details) {
-        if (currentMode == EditMode.pencil) {
-          currentPath = Path()
-            ..moveTo(details.localPosition.dx, details.localPosition.dy);
-          // Add new drawing element to the provider
-          pageContentProvider.addDrawing(currentPage, currentPath!);
-        }
-      },
-      onPanUpdate: (details) {
-        if (currentMode == EditMode.pencil && currentPath != null) {
-          setState(() {
-            currentPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
-            // Update the last drawing element in the provider
-            pageContentProvider.updateLastDrawing(currentPage, currentPath!);
-          });
-        }
-      },
-      onPanEnd: (details) {
-        if (currentMode == EditMode.pencil) {
-          currentPath = null;
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 1,
+    return Stack(
+      children: [
+        GestureDetector(
+          onPanStart: (details) {
+            if (currentMode == EditMode.pencil) {
+              currentPath = Path()
+                ..moveTo(details.localPosition.dx, details.localPosition.dy);
+              pageContentProvider.addDrawing(currentPage, currentPath!);
+            } else if (currentMode == EditMode.erasor) {
+              eraserPath = Path()
+                ..moveTo(details.localPosition.dx, details.localPosition.dy);
+              
+              // Find and erase elements at the start point
+              final elementsToErase = findElementsToErase(
+                details.localPosition,
+                pageContentProvider.getPageElements(currentPage)
+              );
+              
+              // Remove the elements
+              for (var elementId in elementsToErase) {
+                pageContentProvider.removeElement(currentPage, elementId);
+              }
+            }
+          },
+          onPanUpdate: (details) {
+            if (currentMode == EditMode.pencil && currentPath != null) {
+              setState(() {
+                currentPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
+                pageContentProvider.updateLastDrawing(currentPage, currentPath!);
+              });
+            } else if (currentMode == EditMode.erasor && eraserPath != null) {
+              setState(() {
+                eraserPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
+                
+                // Find and erase elements at the current point
+                final elementsToErase = findElementsToErase(
+                  details.localPosition,
+                  pageContentProvider.getPageElements(currentPage)
+                );
+                
+                // Remove the elements
+                for (var elementId in elementsToErase) {
+                  pageContentProvider.removeElement(currentPage, elementId);
+                }
+              });
+            }
+          },
+          onPanEnd: (details) {
+            currentPath = null;
+            eraserPath = null;
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-          ],
-        ),
-        child: CustomPaint(
-          painter: _PagePainter(
-            elements: pageContentProvider.getPageElements(currentPage),
+            child: CustomPaint(
+              painter: _PagePainter(
+                elements: pageContentProvider.getPageElements(currentPage),
+                eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
+                eraserWidth: eraserWidth,
+              ),
+              size: Size.infinite,
+            ),
           ),
-          // Make sure CustomPaint fills the container
-          size: Size.infinite,
         ),
-      ),
+      ],
     );
   }
 }
 
 class _PagePainter extends CustomPainter {
   final List<DrawingElement> elements;
+  final Path? eraserPath;
+  final double eraserWidth;
 
-  _PagePainter({required this.elements});
+  _PagePainter({
+    required this.elements,
+    this.eraserPath,
+    this.eraserWidth = 20.0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,6 +150,7 @@ class _PagePainter extends CustomPainter {
     final sortedElements = List<DrawingElement>.from(elements)
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
 
+    // Draw all elements
     for (var element in sortedElements) {
       if (element is PencilElement) {
         final paint = Paint()
@@ -88,7 +160,6 @@ class _PagePainter extends CustomPainter {
 
         canvas.drawPath(element.path, paint);
 
-        // Draw selection bounds if element is selected
         if (element.isSelected) {
           final boundsPaint = Paint()
             ..color = Colors.blue
@@ -98,7 +169,18 @@ class _PagePainter extends CustomPainter {
           canvas.drawRect(element.bounds, boundsPaint);
         }
       }
-      // Add other element type handling here as needed
+    }
+
+    // Draw eraser preview if in eraser mode
+    if (eraserPath != null) {
+      final eraserPaint = Paint()
+        ..color = Colors.grey.withOpacity(0.3)
+        ..strokeWidth = eraserWidth
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke
+        ..isAntiAlias = true; // Enable anti-aliasing for smoother edges
+
+      canvas.drawPath(eraserPath!, eraserPaint);
     }
   }
 
