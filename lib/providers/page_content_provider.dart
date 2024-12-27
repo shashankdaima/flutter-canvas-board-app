@@ -12,6 +12,7 @@ class PageContentProvider extends ChangeNotifier {
   // Get all elements for a page
   List<DrawingElement> getPageElements(int pageIndex) {
     final elements = _pageElements.putIfAbsent(pageIndex, () => []);
+    print('Page $pageIndex has ${elements.length} elements.');
     return elements;
   }
 
