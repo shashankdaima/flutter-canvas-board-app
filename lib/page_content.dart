@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'canvas_provider.dart';
 import 'edit_mode_provider.dart';
-import 'page_content_provider.dart';
+import 'models/drawing_elements/drawing_element.dart';
+import 'models/drawing_elements/pencil_element.dart';
+import 'providers/page_content_provider.dart';
 
 class PageContent extends StatefulWidget {
   const PageContent({super.key});
@@ -25,22 +27,16 @@ class _PageContentState extends State<PageContent> {
         if (currentMode == EditMode.pencil) {
           currentPath = Path()
             ..moveTo(details.localPosition.dx, details.localPosition.dy);
-          // Create a copy of the path to store in the provider
-          pageContentProvider.addDrawing(
-            currentPage, 
-            Path()..addPath(currentPath!, Offset.zero)
-          );
+          // Add new drawing element to the provider
+          pageContentProvider.addDrawing(currentPage, currentPath!);
         }
       },
       onPanUpdate: (details) {
         if (currentMode == EditMode.pencil && currentPath != null) {
           setState(() {
             currentPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
-            // Update the last path in the provider with the new points
-            pageContentProvider.updateLastDrawing(
-              currentPage, 
-              Path()..addPath(currentPath!, Offset.zero)
-            );
+            // Update the last drawing element in the provider
+            pageContentProvider.updateLastDrawing(currentPage, currentPath!);
           });
         }
       },
@@ -61,7 +57,11 @@ class _PageContentState extends State<PageContent> {
           ],
         ),
         child: CustomPaint(
-          painter: _PagePainter(pageContentProvider.getPageDrawings(currentPage)),
+          painter: _PagePainter(
+            elements: pageContentProvider.getPageElements(currentPage),
+          ),
+          // Make sure CustomPaint fills the container
+          size: Size.infinite,
         ),
       ),
     );
@@ -69,24 +69,41 @@ class _PageContentState extends State<PageContent> {
 }
 
 class _PagePainter extends CustomPainter {
-  final List<Path> paths;
+  final List<DrawingElement> elements;
 
-  _PagePainter(this.paths);
+  _PagePainter({required this.elements});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+    // Sort elements by z-index before painting
+    final sortedElements = List<DrawingElement>.from(elements)
+      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
 
-    for (var path in paths) {
-      canvas.drawPath(path, paint);
+    for (var element in sortedElements) {
+      if (element is PencilElement) {
+        final paint = Paint()
+          ..color = element.isSelected ? Colors.blue : Colors.black
+          ..strokeWidth = 2.0
+          ..style = PaintingStyle.stroke;
+
+        canvas.drawPath(element.path, paint);
+
+        // Draw selection bounds if element is selected
+        if (element.isSelected) {
+          final boundsPaint = Paint()
+            ..color = Colors.blue
+            ..strokeWidth = 1.0
+            ..style = PaintingStyle.stroke;
+
+          canvas.drawRect(element.bounds, boundsPaint);
+        }
+      }
+      // Add other element type handling here as needed
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(covariant _PagePainter oldDelegate) {
     return true;
   }
 }
