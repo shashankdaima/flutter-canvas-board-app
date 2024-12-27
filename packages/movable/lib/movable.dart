@@ -5,11 +5,11 @@ import 'dart:ui';
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 
-import 'enums/scale_direction_enum.dart';
-import 'helpers/scale_helper.dart';
+import '../enums/scale_direction_enum.dart';
+import '../helpers/scale_helper.dart';
 import 'models/interactive_box_info.dart';
 import 'models/scale_info.dart';
-
+export 'models/interactive_box_info.dart';
 class CraftorMovable extends StatefulWidget {
   const CraftorMovable({
     super.key,

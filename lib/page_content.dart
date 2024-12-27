@@ -5,7 +5,7 @@ import 'edit_mode_provider.dart';
 import 'models/drawing_elements/drawing_element.dart';
 import 'models/drawing_elements/pencil_element.dart';
 import 'providers/page_content_provider.dart';
-
+import 'package:movable/movable.dart';
 class PageContent extends StatefulWidget {
   const PageContent({super.key});
 
