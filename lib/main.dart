@@ -1,5 +1,10 @@
+import 'package:canvas_app/providers/canvas_provider.dart';
+import 'package:canvas_app/providers/edit_mode_provider.dart';
+import 'package:canvas_app/providers/page_content_provider.dart';
+import 'package:canvas_app/widgets/drawable_area.dart';
 import 'package:canvas_app/widgets/home.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +26,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      home: const Home(),
+      home: MultiProvider(providers: [
+        ChangeNotifierProvider(create: (_) => CanvasState()),
+        ChangeNotifierProvider(create: (_) => EditModeProvider()),
+        ChangeNotifierProvider(create: (_) => PageContentProvider()),
+      ], child: const Scaffold(body: Home())),
     );
   }
 }

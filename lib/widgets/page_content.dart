@@ -59,6 +59,7 @@ class _PageContentState extends State<PageContent> {
     return Stack(
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onPanStart: (details) {
             if (currentMode == EditMode.pencil) {
               currentPath = Path()
