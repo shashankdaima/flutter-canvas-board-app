@@ -1,4 +1,6 @@
+import 'package:canvas_app/models/drawing_elements/text_element.dart';
 import 'package:flutter/material.dart';
+import 'package:movable/movable.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
@@ -30,6 +32,24 @@ class PageContentProvider extends ChangeNotifier {
 
     final element = PencilElement(
       path: path,
+      zIndex: zIndex,
+      bounds: bounds,
+    );
+
+    _pageElements.putIfAbsent(pageIndex, () => []).add(element);
+
+    // Sort elements by z-index after adding
+    _pageElements[pageIndex]?.sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    notifyListeners();
+  }
+
+  void addText(int pageIndex, Path path, {String? text}) {
+    final bounds = path.getBounds();
+    final zIndex = _getNextZIndex(pageIndex);
+
+    // Create a rectangle element for the text
+    final element = TextElement(
+      content: text ?? '',
       zIndex: zIndex,
       bounds: bounds,
     );

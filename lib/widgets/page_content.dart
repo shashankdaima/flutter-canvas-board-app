@@ -79,6 +79,11 @@ class _PageContentState extends State<PageContent> {
                     for (var elementId in elementsToErase) {
                       pageContentProvider.removeElement(currentPage, elementId);
                     }
+                  } else if (currentMode == EditMode.text) {
+                    eraserPath = Path()
+                      ..moveTo(
+                          details.localPosition.dx, details.localPosition.dy);
+                    pageContentProvider.addText(currentPage, currentPath!);
                   }
                 },
                 onPanUpdate: (details) {
