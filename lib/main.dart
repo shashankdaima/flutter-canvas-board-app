@@ -6,6 +6,8 @@ import 'package:canvas_app/widgets/home.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/export_handler_provider.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CanvasState()),
         ChangeNotifierProvider(create: (_) => EditModeProvider()),
         ChangeNotifierProvider(create: (_) => PageContentProvider()),
+        ChangeNotifierProvider(create: (_) => ExportHandlerProvider()),
       ], child: const Scaffold(body: Home())),
     );
   }

@@ -1,5 +1,6 @@
 // home.dart
 import 'package:canvas_app/providers/edit_mode_provider.dart';
+import 'package:canvas_app/widgets/export_button.dart';
 import 'package:canvas_app/widgets/page_content.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
 import 'package:flutter/material.dart';
@@ -84,13 +85,7 @@ class Home extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      FilledButton.icon(
-                        icon: const Icon(Icons.download),
-                        label: const Text('Export'),
-                        onPressed: () {
-                          // Handle export
-                        },
-                      ),
+                      const ExportButton()
                     ],
                   );
                 },

@@ -6,6 +6,7 @@ import '../painters/page_painter.dart';
 import '../painters/selection_painter.dart';
 import '../providers/canvas_provider.dart';
 import '../providers/edit_mode_provider.dart';
+import '../providers/export_handler_provider.dart';
 import '../providers/page_content_provider.dart';
 import '../utils/erasor_collision_util_function.dart';
 
@@ -40,6 +41,15 @@ class _PageContentState extends State<PageContent> {
     });
   }
 
+ final GlobalKey repaintBoundaryKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the key in the provider
+    Provider.of<ExportHandlerProvider>(context, listen: false)
+        .setRepaintBoundaryKey(repaintBoundaryKey);
+  }
   @override
   Widget build(BuildContext context) {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
@@ -73,6 +83,7 @@ class _PageContentState extends State<PageContent> {
 
         // Drawing canvas layer/Render Layer
         RepaintBoundary(
+          key: repaintBoundaryKey,
           child: CustomPaint(
             painter: PagePainter(
               elements: pageContentProvider.getPageElements(currentPage),
