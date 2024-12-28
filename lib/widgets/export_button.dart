@@ -59,10 +59,30 @@ class ExportButton extends StatelessWidget {
             PopupMenuItem(
               value: 'export_page_pdf',
               child: Text('Export Page in PDF'),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Exporting Page in PDF...')),
-                );
+              onTap: () async {
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(content: Text('Exporting Page in PDF...')),
+                // );
+                try {
+                  final imageBytes = await exportProvider.exportDrawing();
+                  if (imageBytes != null) {
+                    final filename =
+                        'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+                    if (kIsWeb) {
+                      webDownloadPDF(context, [imageBytes], filename);
+                    } else {
+                      await webDownloadPDF(context, [imageBytes], filename);
+                    }
+                  } else if (exportProvider.errorMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(exportProvider.errorMessage!)),
+                    );
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error during export: $e')),
+                  );
+                }
               },
             ),
             PopupMenuItem(
@@ -79,5 +99,4 @@ class ExportButton extends StatelessWidget {
       },
     );
   }
-
 }
