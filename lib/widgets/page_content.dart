@@ -67,30 +67,28 @@ class _PageContentState extends State<PageContent> {
     return Stack(
       children: [
         // Background container
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-        ),
-
-        // Drawing canvas layer/Render Layer
         RepaintBoundary(
           key: repaintBoundaryKey,
-          child: CustomPaint(
-            painter: PagePainter(
-              elements: pageContentProvider.getPageElements(currentPage),
-              eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
-              eraserWidth: eraserWidth,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            size: Size.infinite,
+            child: CustomPaint(
+              painter: PagePainter(
+                elements: pageContentProvider.getPageElements(currentPage),
+                eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
+                eraserWidth: eraserWidth,
+              ),
+              size: Size.infinite,
+            ),
           ),
         ),
 

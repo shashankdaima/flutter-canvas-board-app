@@ -20,38 +20,57 @@ class ExportButton extends StatelessWidget {
           return const CircularProgressIndicator();
         }
 
-        // return ElevatedButton(
-        //   onPressed: () async {
-        //
-        //   },
-        //   child: const Text('Export'),
-        // );
         return SplitButton(
-          label: 'Export',
+          label: 'Export Page(in PNG)',
           onPressed: () async {
-            final imageBytes = await exportProvider.exportDrawing();
-            if (imageBytes != null) {
-              final filename =
-                  'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
-              if (kIsWeb) {
-                _webDownload(imageBytes, filename);
-              } else {
-                await _mobileDownload(imageBytes, filename);
+            try {
+              final imageBytes = await exportProvider.exportDrawing();
+              if (imageBytes != null) {
+                final filename =
+                    'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+                if (kIsWeb) {
+                  _webDownload(context, imageBytes, filename);
+                } else {
+                  await _mobileDownload(context, imageBytes, filename);
+                }
+              } else if (exportProvider.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(exportProvider.errorMessage!)),
+                );
               }
-            } else if (exportProvider.errorMessage != null) {
+            } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(exportProvider.errorMessage!)),
+                SnackBar(content: Text('Error during export: $e')),
               );
             }
           },
           menuItems: [
             PopupMenuItem(
-              value: 'save_as',
-              child: Text('Save As...'),
+              value: 'export_png',
+              child: Text('Export File in PNG'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Exporting File in PNG...')),
+                );
+              },
             ),
             PopupMenuItem(
-              value: 'save_all',
-              child: Text('Save All'),
+              value: 'export_page_pdf',
+              child: Text('Export Page in PDF'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Exporting Page in PDF...')),
+                );
+              },
+            ),
+            PopupMenuItem(
+              value: 'export_file_pdf',
+              child: Text('Export File in PDF'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Exporting File in PDF...')),
+                );
+              },
             ),
           ],
         );
@@ -59,39 +78,34 @@ class ExportButton extends StatelessWidget {
     );
   }
 
-  void _webDownload(Uint8List bytes, String filename) {
-    // Create blob
-    final blob = html.Blob([bytes], 'image/png');
-
-    // Create download URL
-    final url = html.Url.createObjectUrlFromBlob(blob);
-
-    // Create anchor element
-    final anchor = html.AnchorElement()
-      ..href = url
-      ..style.display = 'none'
-      ..download = filename;
-
-    // Add to document
-    html.document.body?.children.add(anchor);
-
-    // Trigger download
-    anchor.click();
-
-    // Clean up
-    html.document.body?.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
+  void _webDownload(BuildContext context, Uint8List bytes, String filename) {
+    try {
+      final blob = html.Blob([bytes], 'image/png');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement()
+        ..href = url
+        ..style.display = 'none'
+        ..download = filename;
+      html.document.body?.children.add(anchor);
+      anchor.click();
+      html.document.body?.children.remove(anchor);
+      html.Url.revokeObjectUrl(url);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error during web download: $e')),
+      );
+    }
   }
 
-  Future<void> _mobileDownload(Uint8List bytes, String filename) async {
+  Future<void> _mobileDownload(BuildContext context, Uint8List bytes, String filename) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final file = io.File('${directory.path}/$filename');
       await file.writeAsBytes(bytes);
-      // You might want to add platform-specific success notifications here
     } catch (e) {
-      print('Error saving file: $e');
-      // Handle error appropriately for your app
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving file: $e')),
+      );
     }
   }
 }
