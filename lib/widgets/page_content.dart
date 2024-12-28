@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:movable/movable.dart';
 import 'package:provider/provider.dart';
 import '../painters/page_painter.dart';
+import '../painters/selection_painter.dart';
 import '../providers/canvas_provider.dart';
 import '../providers/edit_mode_provider.dart';
-import '../models/drawing_elements/drawing_element.dart';
-import '../models/drawing_elements/pencil_element.dart';
 import '../providers/page_content_provider.dart';
 import '../utils/erasor_collision_util_function.dart';
 
@@ -16,9 +17,46 @@ class PageContent extends StatefulWidget {
 }
 
 class _PageContentState extends State<PageContent> {
+  Offset? startPoint;
+  Offset? currentPoint;
+  bool isDrawing = false;
+  bool isMovableActive = false;
   Path? currentPath;
   Path? eraserPath;
   final double eraserWidth = 20.0;
+
+  movableInfo? activeMovableInfo;
+  List<MovableTextItem> movableItems = [];
+
+  void _addMovableTextBox(Offset start, Offset end) {
+    final rect = Rect.fromPoints(start, end);
+    setState(() {
+      movableItems.add(
+        MovableTextItem(
+          info: movableInfo(
+            size: Size(rect.width, rect.height),
+            position: Offset(rect.left, rect.top),
+            rotateAngle: 0,
+          ),
+          text: 'Double click to edit',
+        ),
+      );
+    });
+  }
+
+  void _onMovableTapInside(movableInfo info) {
+    setState(() {
+      isMovableActive = true;
+      activeMovableInfo = info;
+    });
+  }
+
+  void _onMovableTapOutside() {
+    setState(() {
+      isMovableActive = false;
+      activeMovableInfo = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +80,8 @@ class _PageContentState extends State<PageContent> {
             ],
           ),
         ),
-        // Drawing canvas layer (no gesture detection)
+
+        // Drawing canvas layer
         RepaintBoundary(
           child: CustomPaint(
             painter: PagePainter(
@@ -53,76 +92,182 @@ class _PageContentState extends State<PageContent> {
             size: Size.infinite,
           ),
         ),
-        // Separate gesture layer (transparent)
-        if (currentMode == EditMode.erasor || currentMode == EditMode.pencil)
-          Positioned.fill(
-            child: IgnorePointer(
-              ignoring: false,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanStart: (details) {
-                  if (currentMode == EditMode.pencil) {
-                    currentPath = Path()
-                      ..moveTo(
-                          details.localPosition.dx, details.localPosition.dy);
-                    pageContentProvider.addDrawing(currentPage, currentPath!);
-                  } else if (currentMode == EditMode.erasor) {
-                    eraserPath = Path()
-                      ..moveTo(
-                          details.localPosition.dx, details.localPosition.dy);
 
-                    final elementsToErase = findElementsToErase(
-                        details.localPosition,
-                        pageContentProvider.getPageElements(currentPage),
-                        eraserWidth);
-
-                    for (var elementId in elementsToErase) {
-                      pageContentProvider.removeElement(currentPage, elementId);
-                    }
-                  } else if (currentMode == EditMode.text) {
-                    eraserPath = Path()
-                      ..moveTo(
-                          details.localPosition.dx, details.localPosition.dy);
-                    pageContentProvider.addText(currentPage, currentPath!);
-                  }
-                },
-                onPanUpdate: (details) {
-                  if (currentMode == EditMode.pencil && currentPath != null) {
-                    setState(() {
-                      currentPath!.lineTo(
-                          details.localPosition.dx, details.localPosition.dy);
-                      pageContentProvider.updateLastDrawing(
-                          currentPage, currentPath!);
-                    });
-                  } else if (currentMode == EditMode.erasor &&
-                      eraserPath != null) {
-                    setState(() {
-                      eraserPath!.lineTo(
-                          details.localPosition.dx, details.localPosition.dy);
-
-                      final elementsToErase = findElementsToErase(
-                          details.localPosition,
-                          pageContentProvider.getPageElements(currentPage),
-                          eraserWidth);
-
-                      for (var elementId in elementsToErase) {
-                        pageContentProvider.removeElement(
-                            currentPage, elementId);
-                      }
-                    });
-                  }
-                },
-                onPanEnd: (details) {
-                  currentPath = null;
-                  eraserPath = null;
-                },
-                child: Container(
-                  color: Colors.transparent,
-                ),
+        // Text mode selection area
+        if (currentMode == EditMode.text && !isMovableActive)
+          GestureDetector(
+            onPanStart: (details) {
+              setState(() {
+                startPoint = details.localPosition;
+                currentPoint = details.localPosition;
+                isDrawing = true;
+              });
+            },
+            onPanUpdate: (details) {
+              setState(() {
+                currentPoint = details.localPosition;
+              });
+            },
+            onPanEnd: (details) {
+              if (startPoint != null && currentPoint != null) {
+                _addMovableTextBox(startPoint!, currentPoint!);
+                setState(() {
+                  startPoint = null;
+                  currentPoint = null;
+                  isDrawing = false;
+                });
+              }
+            },
+            child: CustomPaint(
+              painter: SelectionRectanglePainter(
+                currentStart: startPoint,
+                currentEnd: currentPoint,
+                isDrawing: isDrawing,
               ),
+              size: Size.infinite,
             ),
           ),
+
+        // Drawing/Eraser gesture layer
+        if (currentMode != EditMode.text)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onPanStart: (details) {
+                handleToolStart(details, currentMode, pageContentProvider, currentPage);
+              },
+              onPanUpdate: (details) {
+                handleToolUpdate(details, currentMode, pageContentProvider, currentPage);
+              },
+              onPanEnd: (_) {
+                resetToolState();
+              },
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+
+        // Movable text boxes
+        ...movableItems.map((item) {
+          return CraftorMovable(
+            isSelected: activeMovableInfo == item.info,
+            keepRatio: RawKeyboard.instance.keysPressed
+                .contains(LogicalKeyboardKey.shiftLeft),
+            scale: 1,
+            scaleInfo: item.info,
+            onTapInside: () => _onMovableTapInside(item.info),
+            onTapOutside: (_) => _onMovableTapOutside(),
+            onChange: (newInfo) {
+              setState(() {
+                final index = movableItems.indexWhere((i) => i.info == item.info);
+                if (index != -1) {
+                  movableItems[index] = MovableTextItem(
+                    info: newInfo,
+                    text: item.text,
+                  );
+                }
+              });
+            },
+            child: Container(
+              width: item.info.size.width,
+              height: item.info.size.height,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: activeMovableInfo == item.info
+                      ? Colors.blue
+                      : Colors.grey.withOpacity(0.5),
+                ),
+              ),
+              child: TextField(
+                controller: TextEditingController(text: item.text),
+                maxLines: null,
+                expands: true,
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.all(8.0),
+                  border: InputBorder.none,
+                ),
+                onChanged: (newText) {
+                  final index = movableItems.indexWhere((i) => i.info == item.info);
+                  if (index != -1) {
+                    setState(() {
+                      movableItems[index] = MovableTextItem(
+                        info: item.info,
+                        text: newText,
+                      );
+                    });
+                  }
+                },
+              ),
+            ),
+          );
+        }).toList(),
       ],
     );
   }
+
+  void handleToolStart(
+    DragStartDetails details,
+    EditMode? mode,
+    PageContentProvider provider,
+    int currentPage,
+  ) {
+    if (mode == EditMode.pencil) {
+      currentPath = Path()..moveTo(details.localPosition.dx, details.localPosition.dy);
+      provider.addDrawing(currentPage, currentPath!);
+    } else if (mode == EditMode.erasor) {
+      eraserPath = Path()..moveTo(details.localPosition.dx, details.localPosition.dy);
+      final elementsToErase = findElementsToErase(
+        details.localPosition,
+        provider.getPageElements(currentPage),
+        eraserWidth,
+      );
+      for (var elementId in elementsToErase) {
+        provider.removeElement(currentPage, elementId);
+      }
+    }
+  }
+
+  void handleToolUpdate(
+    DragUpdateDetails details,
+    EditMode? mode,
+    PageContentProvider provider,
+    int currentPage,
+  ) {
+    if (mode == EditMode.pencil && currentPath != null) {
+      setState(() {
+        currentPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
+        provider.updateLastDrawing(currentPage, currentPath!);
+      });
+    } else if (mode == EditMode.erasor && eraserPath != null) {
+      setState(() {
+        eraserPath!.lineTo(details.localPosition.dx, details.localPosition.dy);
+        final elementsToErase = findElementsToErase(
+          details.localPosition,
+          provider.getPageElements(currentPage),
+          eraserWidth,
+        );
+        for (var elementId in elementsToErase) {
+          provider.removeElement(currentPage, elementId);
+        }
+      });
+    }
+  }
+
+  void resetToolState() {
+    setState(() {
+      currentPath = null;
+      eraserPath = null;
+    });
+  }
+}
+
+class MovableTextItem {
+  final movableInfo info;
+  final String text;
+
+  MovableTextItem({
+    required this.info,
+    required this.text,
+  });
 }
