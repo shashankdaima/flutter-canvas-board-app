@@ -3,6 +3,7 @@ import 'package:canvas_app/providers/edit_mode_provider.dart';
 import 'package:canvas_app/widgets/export_button.dart';
 import 'package:canvas_app/widgets/page_content.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
+import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/canvas_provider.dart';
@@ -85,7 +86,8 @@ class Home extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const ExportButton()
+                      const ExportButton(),
+                   
                     ],
                   );
                 },

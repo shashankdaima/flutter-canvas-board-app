@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/export_handler_provider.dart';
 import 'dart:html' as html;
+
 class ExportButton extends StatelessWidget {
   const ExportButton({super.key});
 
@@ -18,11 +20,19 @@ class ExportButton extends StatelessWidget {
           return const CircularProgressIndicator();
         }
 
-        return ElevatedButton(
+        // return ElevatedButton(
+        //   onPressed: () async {
+        //
+        //   },
+        //   child: const Text('Export'),
+        // );
+        return SplitButton(
+          label: 'Export',
           onPressed: () async {
             final imageBytes = await exportProvider.exportDrawing();
             if (imageBytes != null) {
-              final filename = 'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+              final filename =
+                  'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
               if (kIsWeb) {
                 _webDownload(imageBytes, filename);
               } else {
@@ -34,7 +44,16 @@ class ExportButton extends StatelessWidget {
               );
             }
           },
-          child: const Text('Export'),
+          menuItems: [
+            PopupMenuItem(
+              value: 'save_as',
+              child: Text('Save As...'),
+            ),
+            PopupMenuItem(
+              value: 'save_all',
+              child: Text('Save All'),
+            ),
+          ],
         );
       },
     );
@@ -43,22 +62,22 @@ class ExportButton extends StatelessWidget {
   void _webDownload(Uint8List bytes, String filename) {
     // Create blob
     final blob = html.Blob([bytes], 'image/png');
-    
+
     // Create download URL
     final url = html.Url.createObjectUrlFromBlob(blob);
-    
+
     // Create anchor element
     final anchor = html.AnchorElement()
       ..href = url
       ..style.display = 'none'
       ..download = filename;
-    
+
     // Add to document
     html.document.body?.children.add(anchor);
-    
+
     // Trigger download
     anchor.click();
-    
+
     // Clean up
     html.document.body?.children.remove(anchor);
     html.Url.revokeObjectUrl(url);
