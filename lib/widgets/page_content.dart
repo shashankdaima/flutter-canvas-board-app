@@ -20,40 +20,22 @@ class _PageContentState extends State<PageContent> {
   Offset? startPoint;
   Offset? currentPoint;
   bool isDrawing = false;
-  bool isMovableActive = false;
+  // bool isMovableActive = false;
   Path? currentPath;
   Path? eraserPath;
   final double eraserWidth = 20.0;
 
   movableInfo? activeMovableInfo;
-  List<MovableTextItem> movableItems = [];
-
-  void _addMovableTextBox(Offset start, Offset end) {
-    final rect = Rect.fromPoints(start, end);
-    setState(() {
-      movableItems.add(
-        MovableTextItem(
-          info: movableInfo(
-            size: Size(rect.width, rect.height),
-            position: Offset(rect.left, rect.top),
-            rotateAngle: 0,
-          ),
-          text: 'Double click to edit',
-        ),
-      );
-    });
-  }
+  // List<MovableTextItem> movableItems = [];
 
   void _onMovableTapInside(movableInfo info) {
     setState(() {
-      isMovableActive = true;
       activeMovableInfo = info;
     });
   }
 
   void _onMovableTapOutside() {
     setState(() {
-      isMovableActive = false;
       activeMovableInfo = null;
     });
   }
@@ -63,6 +45,14 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
+    void _addMovableTextBox(Offset start, Offset end) {
+      final rect = Rect.fromPoints(start, end);
+      pageContentProvider.addText(
+        currentPage,
+        rect,
+        text: 'Double click to edit',
+      );
+    }
 
     return Stack(
       children: [
@@ -81,7 +71,7 @@ class _PageContentState extends State<PageContent> {
           ),
         ),
 
-        // Drawing canvas layer
+        // Drawing canvas layer/Render Layer
         RepaintBoundary(
           child: CustomPaint(
             painter: PagePainter(
@@ -94,7 +84,7 @@ class _PageContentState extends State<PageContent> {
         ),
 
         // Text mode selection area
-        if (currentMode == EditMode.text && !isMovableActive)
+        if (currentMode == EditMode.text && activeMovableInfo==null)
           GestureDetector(
             onPanStart: (details) {
               setState(() {
@@ -134,10 +124,12 @@ class _PageContentState extends State<PageContent> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onPanStart: (details) {
-                handleToolStart(details, currentMode, pageContentProvider, currentPage);
+                handleToolStart(
+                    details, currentMode, pageContentProvider, currentPage);
               },
               onPanUpdate: (details) {
-                handleToolUpdate(details, currentMode, pageContentProvider, currentPage);
+                handleToolUpdate(
+                    details, currentMode, pageContentProvider, currentPage);
               },
               onPanEnd: (_) {
                 resetToolState();
@@ -147,61 +139,61 @@ class _PageContentState extends State<PageContent> {
           ),
 
         // Movable text boxes
-        ...movableItems.map((item) {
-          return CraftorMovable(
-            isSelected: activeMovableInfo == item.info,
-            keepRatio: RawKeyboard.instance.keysPressed
-                .contains(LogicalKeyboardKey.shiftLeft),
-            scale: 1,
-            scaleInfo: item.info,
-            onTapInside: () => _onMovableTapInside(item.info),
-            onTapOutside: (_) => _onMovableTapOutside(),
-            onChange: (newInfo) {
-              setState(() {
-                final index = movableItems.indexWhere((i) => i.info == item.info);
-                if (index != -1) {
-                  movableItems[index] = MovableTextItem(
-                    info: newInfo,
-                    text: item.text,
-                  );
-                }
-              });
-            },
-            child: Container(
-              width: item.info.size.width,
-              height: item.info.size.height,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: activeMovableInfo == item.info
-                      ? Colors.blue
-                      : Colors.grey.withOpacity(0.5),
-                ),
-              ),
-              child: TextField(
-                controller: TextEditingController(text: item.text),
-                maxLines: null,
-                expands: true,
-                style: const TextStyle(color: Colors.black),
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(8.0),
-                  border: InputBorder.none,
-                ),
-                onChanged: (newText) {
-                  final index = movableItems.indexWhere((i) => i.info == item.info);
-                  if (index != -1) {
-                    setState(() {
-                      movableItems[index] = MovableTextItem(
-                        info: item.info,
-                        text: newText,
-                      );
-                    });
-                  }
-                },
-              ),
-            ),
-          );
-        }).toList(),
+        // ...movableItems.map((item) {
+        //   return CraftorMovable(
+        //     isSelected: activeMovableInfo == item.info,
+        //     keepRatio: RawKeyboard.instance.keysPressed
+        //         .contains(LogicalKeyboardKey.shiftLeft),
+        //     scale: 1,
+        //     scaleInfo: item.info,
+        //     onTapInside: () => _onMovableTapInside(item.info),
+        //     onTapOutside: (_) => _onMovableTapOutside(),
+        //     onChange: (newInfo) {
+        //       setState(() {
+        //         final index = movableItems.indexWhere((i) => i.info == item.info);
+        //         if (index != -1) {
+        //           movableItems[index] = MovableTextItem(
+        //             info: newInfo,
+        //             text: item.text,
+        //           );
+        //         }
+        //       });
+        //     },
+        //     child: Container(
+        //       width: item.info.size.width,
+        //       height: item.info.size.height,
+        //       decoration: BoxDecoration(
+        //         color: Colors.white,
+        //         border: Border.all(
+        //           color: activeMovableInfo == item.info
+        //               ? Colors.blue
+        //               : Colors.grey.withOpacity(0.5),
+        //         ),
+        //       ),
+        //       child: TextField(
+        //         controller: TextEditingController(text: item.text),
+        //         maxLines: null,
+        //         expands: true,
+        //         style: const TextStyle(color: Colors.black),
+        //         decoration: const InputDecoration(
+        //           contentPadding: EdgeInsets.all(8.0),
+        //           border: InputBorder.none,
+        //         ),
+        //         onChanged: (newText) {
+        //           final index = movableItems.indexWhere((i) => i.info == item.info);
+        //           if (index != -1) {
+        //             setState(() {
+        //               movableItems[index] = MovableTextItem(
+        //                 info: item.info,
+        //                 text: newText,
+        //               );
+        //             });
+        //           }
+        //         },
+        //       ),
+        //     ),
+        //   );
+        // }).toList(),
       ],
     );
   }
@@ -213,10 +205,12 @@ class _PageContentState extends State<PageContent> {
     int currentPage,
   ) {
     if (mode == EditMode.pencil) {
-      currentPath = Path()..moveTo(details.localPosition.dx, details.localPosition.dy);
+      currentPath = Path()
+        ..moveTo(details.localPosition.dx, details.localPosition.dy);
       provider.addDrawing(currentPage, currentPath!);
     } else if (mode == EditMode.erasor) {
-      eraserPath = Path()..moveTo(details.localPosition.dx, details.localPosition.dy);
+      eraserPath = Path()
+        ..moveTo(details.localPosition.dx, details.localPosition.dy);
       final elementsToErase = findElementsToErase(
         details.localPosition,
         provider.getPageElements(currentPage),

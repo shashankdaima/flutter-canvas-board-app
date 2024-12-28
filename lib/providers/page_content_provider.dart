@@ -15,7 +15,7 @@ class PageContentProvider extends ChangeNotifier {
   // Get all elements for a page
   List<DrawingElement> getPageElements(int pageIndex) {
     final elements = _pageElements.putIfAbsent(pageIndex, () => []);
-    print('Page $pageIndex has ${elements.length} elements.');
+    // print('Page $pageIndex has ${elements.length} elements.');
     return elements;
   }
 
@@ -43,15 +43,15 @@ class PageContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addText(int pageIndex, Path path, {String? text}) {
-    final bounds = path.getBounds();
+  void addText(int pageIndex, Rect bounds, {String? text}) {
     final zIndex = _getNextZIndex(pageIndex);
 
-    // Create a rectangle element for the text
+    // Create a text element with the given bounds and text
     final element = TextElement(
       content: text ?? '',
       zIndex: zIndex,
       bounds: bounds,
+      isSelected: false
     );
 
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);
