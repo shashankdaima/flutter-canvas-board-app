@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import '../providers/export_handler_provider.dart';
 import 'dart:html' as html;
 
+import '../utils/download_utils.dart';
+
 class ExportButton extends StatelessWidget {
   const ExportButton({super.key});
 
@@ -29,9 +31,9 @@ class ExportButton extends StatelessWidget {
                 final filename =
                     'drawing_${DateTime.now().millisecondsSinceEpoch}.png';
                 if (kIsWeb) {
-                  _webDownload(context, imageBytes, filename);
+                  webDownload(context, imageBytes, filename);
                 } else {
-                  await _mobileDownload(context, imageBytes, filename);
+                  await mobileDownload(context, imageBytes, filename);
                 }
               } else if (exportProvider.errorMessage != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -78,34 +80,4 @@ class ExportButton extends StatelessWidget {
     );
   }
 
-  void _webDownload(BuildContext context, Uint8List bytes, String filename) {
-    try {
-      final blob = html.Blob([bytes], 'image/png');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement()
-        ..href = url
-        ..style.display = 'none'
-        ..download = filename;
-      html.document.body?.children.add(anchor);
-      anchor.click();
-      html.document.body?.children.remove(anchor);
-      html.Url.revokeObjectUrl(url);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error during web download: $e')),
-      );
-    }
-  }
-
-  Future<void> _mobileDownload(BuildContext context, Uint8List bytes, String filename) async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final file = io.File('${directory.path}/$filename');
-      await file.writeAsBytes(bytes);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving file: $e')),
-      );
-    }
-  }
 }
