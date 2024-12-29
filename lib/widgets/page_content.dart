@@ -9,6 +9,7 @@ import '../providers/edit_mode_provider.dart';
 import '../providers/export_handler_provider.dart';
 import '../providers/page_content_provider.dart';
 import '../utils/erasor_collision_util_function.dart';
+import 'lazer_pointer.dart';
 
 class PageContent extends StatefulWidget {
   const PageContent({super.key});
@@ -204,6 +205,7 @@ class _PageContentState extends State<PageContent> {
         //     ),
         //   );
         // }).toList(),
+        if (currentMode == EditMode.lazer) LaserPointer(isActive: currentMode == EditMode.lazer)
       ],
     );
   }
