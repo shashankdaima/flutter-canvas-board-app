@@ -22,4 +22,5 @@ enum EditMode {
   text,
   image,
   shape,
+  lazer
 }

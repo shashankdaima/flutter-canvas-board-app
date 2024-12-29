@@ -1,7 +1,9 @@
 // home.dart
 import 'package:canvas_app/providers/edit_mode_provider.dart';
+import 'package:canvas_app/widgets/export_button.dart';
 import 'package:canvas_app/widgets/page_content.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
+import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/canvas_provider.dart';
@@ -84,13 +86,7 @@ class Home extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      FilledButton.icon(
-                        icon: const Icon(Icons.download),
-                        label: const Text('Export'),
-                        onPressed: () {
-                          // Handle export
-                        },
-                      ),
+                      const ExportButton(),
                     ],
                   );
                 },
@@ -169,6 +165,35 @@ class Home extends StatelessWidget {
                 builder: (context, editModeProvider, _) {
                   return Column(
                     children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.circle,
+                          color: Colors.red,
+                        ),
+                        tooltip: 'Lazer',
+                        color: editModeProvider.currentMode == EditMode.lazer
+                            ? theme.colorScheme.primary
+                            : null,
+                        onPressed: () {
+                          if (editModeProvider.currentMode == EditMode.lazer) {
+                            editModeProvider.setMode(null);
+                          } else {
+                            editModeProvider.setMode(EditMode.lazer);
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                              if (editModeProvider.currentMode ==
+                                  EditMode.lazer) {
+                                return Colors.red.shade900;
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
                       IconButton(
                         icon: const Icon(Icons.edit),
                         tooltip: 'Pencil',

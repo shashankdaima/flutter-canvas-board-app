@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
+import '../models/drawing_elements/text_element.dart';
+import '../widgets/page_content.dart';
 
 class PagePainter extends CustomPainter {
   final List<DrawingElement> elements;
@@ -39,6 +41,40 @@ class PagePainter extends CustomPainter {
           canvas.drawRect(element.bounds, boundsPaint);
         }
       }
+      if (element is TextElement&& !element.isSelected) {
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: element.content,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16.0,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+          maxLines: null,
+        );
+
+        textPainter.layout(
+          minWidth: 0,
+          maxWidth: element.info.size.width,
+        );
+
+        final textOffset = element.info.position;
+        textPainter.paint(canvas, textOffset);
+
+        final textBoxPaint = Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.stroke;
+
+        final textBoxRect = Rect.fromLTWH(
+          textOffset.dx,
+          textOffset.dy,
+          element.info.size.width,
+          element.info.size.height,
+        );
+
+        canvas.drawRect(textBoxRect, textBoxPaint);
+      }
     }
 
     // Draw eraser preview if in eraser mode
@@ -53,6 +89,43 @@ class PagePainter extends CustomPainter {
       canvas.drawPath(eraserPath!, eraserPaint);
     }
   }
+
+  // void drawMovableTextBoxes(Canvas canvas, List<MovableTextItem> movableItems) {
+  //   for (var item in movableItems) {
+  //     final textPainter = TextPainter(
+  //       text: TextSpan(
+  //         text: item.text,
+  //         style: TextStyle(
+  //           color: Colors.black,
+  //           fontSize: 16.0,
+  //         ),
+  //       ),
+  //       textDirection: TextDirection.ltr,
+  //       maxLines: null,
+  //     );
+
+  //     textPainter.layout(
+  //       minWidth: 0,
+  //       maxWidth: item.info.size.width,
+  //     );
+
+  //     final textOffset = item.info.position;
+  //     textPainter.paint(canvas, textOffset);
+
+  //     final textBoxPaint = Paint()
+  //       ..color = Colors.black
+  //       ..style = PaintingStyle.stroke;
+
+  //     final textBoxRect = Rect.fromLTWH(
+  //       textOffset.dx,
+  //       textOffset.dy,
+  //       item.info.size.width,
+  //       item.info.size.height,
+  //     );
+
+  //     canvas.drawRect(textBoxRect, textBoxPaint);
+  //   }
+  // }
 
   @override
   bool shouldRepaint(covariant PagePainter oldDelegate) {
