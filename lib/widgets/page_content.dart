@@ -41,6 +41,11 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
+    movableInfo info = movableInfo(
+      size: const Size(100, 100),
+      position: const Offset(10, 10),
+      rotateAngle: 0,
+    );
     void _addMovableTextBox(Offset start, Offset end) {
       final rect = Rect.fromPoints(start, end);
       pageContentProvider.addText(
@@ -133,62 +138,33 @@ class _PageContentState extends State<PageContent> {
             ),
           ),
 
-        // Movable text boxes
-        // ...movableItems.map((item) {
-        //   return CraftorMovable(
-        //     isSelected: activeMovableInfo == item.info,
-        //     keepRatio: RawKeyboard.instance.keysPressed
-        //         .contains(LogicalKeyboardKey.shiftLeft),
-        //     scale: 1,
-        //     scaleInfo: item.info,
-        //     onTapInside: () => _onMovableTapInside(item.info),
-        //     onTapOutside: (_) => _onMovableTapOutside(),
-        //     onChange: (newInfo) {
-        //       setState(() {
-        //         final index = movableItems.indexWhere((i) => i.info == item.info);
-        //         if (index != -1) {
-        //           movableItems[index] = MovableTextItem(
-        //             info: newInfo,
-        //             text: item.text,
-        //           );
-        //         }
-        //       });
-        //     },
-        //     child: Container(
-        //       width: item.info.size.width,
-        //       height: item.info.size.height,
-        //       decoration: BoxDecoration(
-        //         color: Colors.white,
-        //         border: Border.all(
-        //           color: activeMovableInfo == item.info
-        //               ? Colors.blue
-        //               : Colors.grey.withOpacity(0.5),
-        //         ),
-        //       ),
-        //       child: TextField(
-        //         controller: TextEditingController(text: item.text),
-        //         maxLines: null,
-        //         expands: true,
-        //         style: const TextStyle(color: Colors.black),
-        //         decoration: const InputDecoration(
-        //           contentPadding: EdgeInsets.all(8.0),
-        //           border: InputBorder.none,
-        //         ),
-        //         onChanged: (newText) {
-        //           final index = movableItems.indexWhere((i) => i.info == item.info);
-        //           if (index != -1) {
-        //             setState(() {
-        //               movableItems[index] = MovableTextItem(
-        //                 info: item.info,
-        //                 text: newText,
-        //               );
-        //             });
-        //           }
-        //         },
-        //       ),
-        //     ),
-        //   );
-        // }).toList(),
+        CraftorMovable(
+          isSelected: false,
+          keepRatio: RawKeyboard.instance.keysPressed
+              .contains(LogicalKeyboardKey.shiftLeft),
+          scale: 1,
+          scaleInfo: info,
+          onTapInside: () => (),
+          onTapOutside: (_) => (),
+          onChange: (newInfo) {
+            setState(() {
+              info = newInfo;
+            });
+          },
+          child: TextField(
+            maxLines: null,
+            style: const TextStyle(
+              color: Colors.black,
+              height: 1, // Reduce line height
+            ),
+            expands: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+            ),
+            onChanged: (newText) {},
+          ),
+        ),
         if (currentMode == EditMode.lazer)
           LaserPointer(isActive: currentMode == EditMode.lazer)
       ],
