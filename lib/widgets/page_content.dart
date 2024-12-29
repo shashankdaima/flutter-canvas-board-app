@@ -26,22 +26,6 @@ class _PageContentState extends State<PageContent> {
   Path? currentPath;
   Path? eraserPath;
   final double eraserWidth = 20.0;
-
-  movableInfo? activeMovableInfo;
-  // List<MovableTextItem> movableItems = [];
-
-  void _onMovableTapInside(movableInfo info) {
-    setState(() {
-      activeMovableInfo = info;
-    });
-  }
-
-  void _onMovableTapOutside() {
-    setState(() {
-      activeMovableInfo = null;
-    });
-  }
-
   final GlobalKey repaintBoundaryKey = GlobalKey();
 
   @override
@@ -95,7 +79,7 @@ class _PageContentState extends State<PageContent> {
         ),
 
         // Text mode selection area
-        if (currentMode == EditMode.text && activeMovableInfo == null)
+        if (currentMode == EditMode.text)
           GestureDetector(
             onPanStart: (details) {
               setState(() {
@@ -205,7 +189,8 @@ class _PageContentState extends State<PageContent> {
         //     ),
         //   );
         // }).toList(),
-        if (currentMode == EditMode.lazer) LaserPointer(isActive: currentMode == EditMode.lazer)
+        if (currentMode == EditMode.lazer)
+          LaserPointer(isActive: currentMode == EditMode.lazer)
       ],
     );
   }
@@ -266,14 +251,4 @@ class _PageContentState extends State<PageContent> {
       eraserPath = null;
     });
   }
-}
-
-class MovableTextItem {
-  final movableInfo info;
-  final String text;
-
-  MovableTextItem({
-    required this.info,
-    required this.text,
-  });
 }

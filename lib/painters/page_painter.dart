@@ -90,42 +90,42 @@ class PagePainter extends CustomPainter {
     }
   }
 
-  void drawMovableTextBoxes(Canvas canvas, List<MovableTextItem> movableItems) {
-    for (var item in movableItems) {
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: item.text,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 16.0,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-        maxLines: null,
-      );
+  // void drawMovableTextBoxes(Canvas canvas, List<MovableTextItem> movableItems) {
+  //   for (var item in movableItems) {
+  //     final textPainter = TextPainter(
+  //       text: TextSpan(
+  //         text: item.text,
+  //         style: TextStyle(
+  //           color: Colors.black,
+  //           fontSize: 16.0,
+  //         ),
+  //       ),
+  //       textDirection: TextDirection.ltr,
+  //       maxLines: null,
+  //     );
 
-      textPainter.layout(
-        minWidth: 0,
-        maxWidth: item.info.size.width,
-      );
+  //     textPainter.layout(
+  //       minWidth: 0,
+  //       maxWidth: item.info.size.width,
+  //     );
 
-      final textOffset = item.info.position;
-      textPainter.paint(canvas, textOffset);
+  //     final textOffset = item.info.position;
+  //     textPainter.paint(canvas, textOffset);
 
-      final textBoxPaint = Paint()
-        ..color = Colors.black
-        ..style = PaintingStyle.stroke;
+  //     final textBoxPaint = Paint()
+  //       ..color = Colors.black
+  //       ..style = PaintingStyle.stroke;
 
-      final textBoxRect = Rect.fromLTWH(
-        textOffset.dx,
-        textOffset.dy,
-        item.info.size.width,
-        item.info.size.height,
-      );
+  //     final textBoxRect = Rect.fromLTWH(
+  //       textOffset.dx,
+  //       textOffset.dy,
+  //       item.info.size.width,
+  //       item.info.size.height,
+  //     );
 
-      canvas.drawRect(textBoxRect, textBoxPaint);
-    }
-  }
+  //     canvas.drawRect(textBoxRect, textBoxPaint);
+  //   }
+  // }
 
   @override
   bool shouldRepaint(covariant PagePainter oldDelegate) {
