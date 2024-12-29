@@ -41,7 +41,7 @@ class _PageContentState extends State<PageContent> {
     });
   }
 
- final GlobalKey repaintBoundaryKey = GlobalKey();
+  final GlobalKey repaintBoundaryKey = GlobalKey();
 
   @override
   void initState() {
@@ -50,6 +50,7 @@ class _PageContentState extends State<PageContent> {
     Provider.of<ExportHandlerProvider>(context, listen: false)
         .setRepaintBoundaryKey(repaintBoundaryKey);
   }
+
   @override
   Widget build(BuildContext context) {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
@@ -93,7 +94,7 @@ class _PageContentState extends State<PageContent> {
         ),
 
         // Text mode selection area
-        if (currentMode == EditMode.text && activeMovableInfo==null)
+        if (currentMode == EditMode.text && activeMovableInfo == null)
           GestureDetector(
             onPanStart: (details) {
               setState(() {

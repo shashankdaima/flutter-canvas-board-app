@@ -87,7 +87,6 @@ class Home extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                       const ExportButton(),
-                   
                     ],
                   );
                 },
@@ -166,6 +165,35 @@ class Home extends StatelessWidget {
                 builder: (context, editModeProvider, _) {
                   return Column(
                     children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.circle,
+                          color: Colors.red,
+                        ),
+                        tooltip: 'Lazer',
+                        color: editModeProvider.currentMode == EditMode.lazer
+                            ? theme.colorScheme.primary
+                            : null,
+                        onPressed: () {
+                          if (editModeProvider.currentMode == EditMode.lazer) {
+                            editModeProvider.setMode(null);
+                          } else {
+                            editModeProvider.setMode(EditMode.lazer);
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                              if (editModeProvider.currentMode ==
+                                  EditMode.lazer) {
+                                return Colors.red.shade900;
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
                       IconButton(
                         icon: const Icon(Icons.edit),
                         tooltip: 'Pencil',
