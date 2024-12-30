@@ -43,6 +43,19 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
+    void saveMovableContent() {
+      if (movableInfo != null) {
+        pageContentProvider.addText(currentPage, movableInfo!.rect,
+            text: textController.text);
+        textController.clear();
+      }
+
+      setState(() {
+        isSelected = false;
+        movableInfo = null;
+      });
+    }
+
     void _addMovableTextBox(Offset start, Offset end) {
       final rect = Rect.fromPoints(start, end);
       setState(() {
@@ -147,7 +160,7 @@ class _PageContentState extends State<PageContent> {
             scale: 1,
             scaleInfo: movableInfo!,
             onTapInside: () => setState(() => isSelected = true),
-            onTapOutside: (_) => setState(() => isSelected = false),
+            onTapOutside: (_) => saveMovableContent(),
             onChange: (newInfo) => setState(() => movableInfo = newInfo),
             child: Container(
               width: double.infinity,
