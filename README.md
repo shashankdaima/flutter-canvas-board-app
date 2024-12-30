@@ -1,16 +1,44 @@
 # canvas_app
 
-A new Flutter project.
+Canvas App is a minimal viable product (MVP) version of tldraw, built using Flutter. This application provides a versatile drawing canvas that supports various tools and features, making it ideal for creative projects and note-taking.
 
-## Getting Started
+## Demo Video
 
-This project is a starting point for a Flutter application.
+To see Canvas App in action, check out the demo video below:
 
-A few resources to get you started if this is your first Flutter project:
+<video controls>
+  <source src="./readme-assets/video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Overview
+
+Canvas App is a feature-rich drawing application designed to provide users with a seamless and intuitive drawing experience. Built with Flutter, it leverages the power of cross-platform development to deliver consistent performance across different devices. Whether you're sketching ideas, taking notes, or creating detailed illustrations, Canvas App offers the tools you need to bring your vision to life.
+
+## Features
+
+- **Pencil Tool**: Draw freehand sketches and lines with ease.
+- **Text Tool**: Add and edit text directly on the canvas.
+- **Laser Pointer**: Highlight areas of interest temporarily.
+- **Eraser Tool**: Remove unwanted elements from your canvas.
+- **Image Support**: Insert and manipulate images within your canvas.
+- **Export Options**: Save your creations as PNG or PDF files for easy sharing and printing.
+
+## Key Components
+
+- **User Interface**: A clean and responsive UI that adapts to various screen sizes, ensuring a smooth user experience.
+- **Performance**: Optimized for both web and mobile platforms, providing fast and reliable performance.
+- **Customization**: Offers a range of customizable tools and settings to suit individual preferences and workflows.
+
+## Technical Details
+
+Canvas App utilizes Flutter's powerful rendering capabilities to manage complex drawing operations efficiently. It supports both web and mobile platforms, with specific functions tailored to each environment, such as web and mobile download utilities for exporting drawings.
+
+- **State Management**: Uses Provider for efficient state management, ensuring that the app remains responsive and scalable.
+- **PDF Generation**: Employs isolates for generating PDFs, enhancing performance by offloading intensive tasks from the main thread.
+- **File Handling**: Provides robust file handling capabilities, allowing users to save and share their work effortlessly.
+
+## Contribution
+
+We welcome contributions from the community to help improve Canvas App. Whether it's fixing bugs, adding new features, or enhancing documentation, your input is valuable. Please refer to our contribution guidelines for more information on how to get involved.
