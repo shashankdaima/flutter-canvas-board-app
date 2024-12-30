@@ -10,6 +10,7 @@ import '../helpers/scale_helper.dart';
 import 'models/interactive_box_info.dart';
 import 'models/scale_info.dart';
 export 'models/interactive_box_info.dart';
+
 class CraftorMovable extends StatefulWidget {
   const CraftorMovable({
     super.key,
@@ -28,20 +29,16 @@ class CraftorMovable extends StatefulWidget {
   });
 
   final bool isSelected;
-
   final bool keepRatio;
   final double scale;
   final MovableInfo scaleInfo;
   final Function()? onDoubleTap;
-
   final Function() onTapInside;
   final Function(PointerDownEvent e) onTapOutside;
   final Function(TapDownDetails)? onSecondaryTapDown;
-
   final Function(MovableInfo) onChange;
   final Function()? onChangeEnd;
   final Function()? onChangeStart;
-
   final Widget child;
 
   @override
@@ -51,47 +48,35 @@ class CraftorMovable extends StatefulWidget {
 class _CraftorMovableState extends State<CraftorMovable> {
   late double _width;
   late double _height;
-
-  // bool _isPerforming = false;
   bool isMoving = false;
-
   double _x = 0.0;
   double _y = 0.0;
+  double _startingAngle = 0.0;
+  double _prevAngle = 0.0;
+  double _finalAngle = 0.0;
+  bool isHover = false;
 
   @override
   void initState() {
     super.initState();
+    _updateFromScaleInfo();
+  }
 
+  @override
+  void didUpdateWidget(CraftorMovable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.scaleInfo != widget.scaleInfo) {
+      _updateFromScaleInfo();
+    }
+  }
+
+  void _updateFromScaleInfo() {
     _x = widget.scaleInfo.position.dx;
     _y = widget.scaleInfo.position.dy;
     _width = widget.scaleInfo.size.width;
     _height = widget.scaleInfo.size.height;
     _finalAngle = widget.scaleInfo.rotateAngle;
   }
-
-  /// The starting angle when users first contact with the widget on screen.
-  double _startingAngle = 0.0;
-
-  /// The previous [_finalAngle].
-  double _prevAngle = 0.0;
-
-  /// The current rotation angle.
-  double _finalAngle = 0.0;
-
-  @override
-  void didUpdateWidget(CraftorMovable oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.scaleInfo != widget.scaleInfo) {
-      _x = widget.scaleInfo.position.dx;
-      _y = widget.scaleInfo.position.dy;
-      _width = widget.scaleInfo.size.width;
-      _height = widget.scaleInfo.size.height;
-      _finalAngle = widget.scaleInfo.rotateAngle;
-    }
-  }
-
-  bool isHover = false;
 
   @override
   Widget build(BuildContext context) {
@@ -110,20 +95,24 @@ class _CraftorMovableState extends State<CraftorMovable> {
             child: DeferredPointerHandler(
               child: GestureDetector(
                 onDoubleTap: widget.onDoubleTap,
-                onPanUpdate: _onMoving,
+                onPanUpdate: widget.isSelected ? _onMoving : null,
                 onSecondaryTapDown: widget.onSecondaryTapDown,
-                onPanEnd: (d) {
-                  setState(() {
-                    isMoving = false;
-                  });
-                  widget.onChangeEnd?.call();
-                },
-                onPanStart: (d) {
-                  setState(() {
-                    isMoving = true;
-                  });
-                  _onScalingStart();
-                },
+                onPanEnd: widget.isSelected
+                    ? (d) {
+                        setState(() {
+                          isMoving = false;
+                        });
+                        widget.onChangeEnd?.call();
+                      }
+                    : null,
+                onPanStart: widget.isSelected
+                    ? (d) {
+                        setState(() {
+                          isMoving = true;
+                        });
+                        _onScalingStart();
+                      }
+                    : null,
                 supportedDevices: const {
                   PointerDeviceKind.touch,
                   PointerDeviceKind.mouse,
@@ -137,327 +126,30 @@ class _CraftorMovableState extends State<CraftorMovable> {
                     children: [
                       Positioned.fill(
                         child: MouseRegion(
-                          onEnter: (e) {
-                            setState(() {
-                              isHover = true;
-                            });
-                          },
-                          onExit: (e) {
-                            setState(() {
-                              isHover = false;
-                            });
-                          },
+                          cursor: widget.isSelected
+                              ? SystemMouseCursors.move
+                              : SystemMouseCursors.basic,
+                          onEnter: (e) => setState(() => isHover = true),
+                          onExit: (e) => setState(() => isHover = false),
                           child: Container(
                             width: _width,
                             height: _height,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                  color: borderColor, width: 2 / widget.scale),
+                                color: widget.isSelected ? borderColor : Colors.transparent,
+                                width: 2 / widget.scale,
+                              ),
                             ),
                             child: widget.child,
                           ),
                         ),
                       ),
-
-                      if (!widget.keepRatio) ...[
-                        // top center
-                        Positioned(
-                          top: -4 / widget.scale,
-                          left: 0,
-                          child: DeferPointer(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.resizeUpDown,
-                              child: GestureDetector(
-                                onPanStart: (d) {
-                                  _onScalingStart();
-                                },
-                                onPanUpdate: (details) {
-                                  _onScaling(details, ScaleDirection.topCenter);
-                                },
-                                onPanEnd: (details) {
-                                  _onScalingEnd(details);
-                                },
-                                supportedDevices: const {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                                child: Container(
-                                  height: 9 / widget.scale,
-                                  color: Colors.transparent,
-                                  width: (_width),
-                                  alignment: Alignment.topCenter,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // bottom center
-                        Positioned(
-                          bottom: -4 / widget.scale,
-                          left: 0,
-                          child: DeferPointer(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.resizeUpDown,
-                              child: GestureDetector(
-                                onPanStart: (d) {
-                                  _onScalingStart();
-                                },
-                                onPanUpdate: (details) {
-                                  _onScaling(
-                                      details, ScaleDirection.bottomCenter);
-                                },
-                                onPanEnd: (details) {
-                                  _onScalingEnd(details);
-                                },
-                                supportedDevices: const {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                                child: Container(
-                                  height: 9 / widget.scale,
-                                  color: Colors.transparent,
-                                  width: _width,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // center left
-                        Positioned(
-                          top: 0,
-                          left: -4 / widget.scale,
-                          child: DeferPointer(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.resizeLeftRight,
-                              child: GestureDetector(
-                                onPanStart: (d) {
-                                  _onScalingStart();
-                                },
-                                onPanUpdate: (details) {
-                                  _onScaling(
-                                      details, ScaleDirection.centerLeft);
-                                },
-                                onPanEnd: (details) {
-                                  _onScalingEnd(details);
-                                },
-                                supportedDevices: const {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                                child: Container(
-                                  width: 9 / widget.scale,
-                                  color: Colors.transparent,
-                                  height: (_height),
-                                  alignment: Alignment.topCenter,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // center right
-                        Positioned(
-                          top: 0,
-                          right: -4 / widget.scale,
-                          child: DeferPointer(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.resizeLeftRight,
-                              child: GestureDetector(
-                                onPanStart: (d) {
-                                  _onScalingStart();
-                                },
-                                onPanUpdate: (details) {
-                                  _onScaling(
-                                      details, ScaleDirection.centerRight);
-                                },
-                                onPanEnd: (details) {
-                                  _onScalingEnd(details);
-                                },
-                                supportedDevices: const {
-                                  PointerDeviceKind.touch,
-                                  PointerDeviceKind.mouse,
-                                },
-                                child: Container(
-                                  width: 9 / widget.scale,
-                                  color: Colors.transparent,
-                                  height: _height,
-                                  alignment: Alignment.topCenter,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      if (widget.isSelected) ...[
+                        // Only show handles when selected
+                        if (!widget.keepRatio) ..._buildNonRatioHandles(borderColor),
+                        ..._buildCornerHandles(borderColor),
+                        _buildRotationHandle(borderColor),
                       ],
-
-                      // top left
-                      Positioned(
-                        top: -4 / widget.scale,
-                        left: -4 / widget.scale,
-                        child: DeferPointer(
-                          child: GestureDetector(
-                            onPanStart: (d) {
-                              _onScalingStart();
-                            },
-                            onPanUpdate: (details) {
-                              _onScaling(details, ScaleDirection.topLeft);
-                            },
-                            onPanEnd: (details) {
-                              _onScalingEnd(details);
-                            },
-                            supportedDevices: const {
-                              PointerDeviceKind.touch,
-                              PointerDeviceKind.mouse,
-                            },
-                            child: Container(
-                              width: 9 / widget.scale,
-                              height: 9 / widget.scale,
-                              decoration: buildBorder(
-                                Alignment.topLeft,
-                                borderColor,
-                              ),
-
-                              // decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // top right
-                      Positioned(
-                        top: -4 / widget.scale,
-                        right: -4 / widget.scale,
-                        child: DeferPointer(
-                          child: GestureDetector(
-                            onPanStart: (d) {
-                              _onScalingStart();
-                            },
-                            onPanUpdate: (details) {
-                              _onScaling(details, ScaleDirection.topRight);
-                            },
-                            onPanEnd: (details) {
-                              _onScalingEnd(details);
-                            },
-                            supportedDevices: const {
-                              PointerDeviceKind.touch,
-                              PointerDeviceKind.mouse,
-                            },
-                            child: Container(
-                              width: 9 / widget.scale,
-                              height: 9 / widget.scale,
-                              decoration:
-                                  buildBorder(Alignment.topRight, borderColor),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // bottom left
-                      Positioned(
-                        bottom: -4 / widget.scale,
-                        left: -4 / widget.scale,
-                        child: DeferPointer(
-                          child: GestureDetector(
-                            onPanStart: (d) {
-                              _onScalingStart();
-                            },
-                            onPanUpdate: (details) {
-                              _onScaling(details, ScaleDirection.bottomLeft);
-                            },
-                            onPanEnd: (details) {
-                              _onScalingEnd(details);
-                            },
-                            supportedDevices: const {
-                              PointerDeviceKind.touch,
-                              PointerDeviceKind.mouse,
-                            },
-                            child: Container(
-                              width: 9 / widget.scale,
-                              height: 9 / widget.scale,
-                              decoration: buildBorder(
-                                  Alignment.bottomLeft, borderColor),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // bottom right
-                      Positioned(
-                        bottom: -4 / widget.scale,
-                        right: -4 / widget.scale,
-                        child: DeferPointer(
-                          child: GestureDetector(
-                            onPanStart: (d) {
-                              _onScalingStart();
-                            },
-                            onPanUpdate: (details) {
-                              _onScaling(details, ScaleDirection.bottomRight);
-                            },
-                            onPanEnd: (details) {
-                              _onScalingEnd(details);
-                            },
-                            supportedDevices: const {
-                              PointerDeviceKind.touch,
-                              PointerDeviceKind.mouse,
-                            },
-                            child: Container(
-                              width: 9 / widget.scale,
-                              height: 9 / widget.scale,
-                              decoration: buildBorder(
-                                  Alignment.bottomRight, borderColor),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned.fill(
-                        top: -20,
-                        child: DeferPointer(
-                          child: GestureDetector(
-                            onPanStart: (details) {
-                              _startingAngle = _finalAngle;
-                            },
-                            onPanUpdate: (details) {
-                              final center =
-                                  Rect.fromLTWH(0, 0, _width, _height).center;
-
-                              final newAngle = getAngleFromPoints(
-                                  center, details.localPosition);
-                              setState(() {
-                                _finalAngle =
-                                    _startingAngle + newAngle + pi / 2;
-                              });
-
-                              widget.onChange(_getCurrentBoxInfo);
-                            },
-                            onPanEnd: (details) {
-                              _prevAngle = _finalAngle;
-                              widget.onChange(_getCurrentBoxInfo);
-                            },
-                            child: Stack(
-                              alignment: Alignment.topCenter,
-                              children: [
-                                Container(
-                                    height: 20, width: 2, color: borderColor),
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.grab,
-                                  child: Container(
-                                    width: 9,
-                                    height: 9,
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                          width: 1.2, color: borderColor),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -469,6 +161,191 @@ class _CraftorMovableState extends State<CraftorMovable> {
     );
   }
 
+  List<Widget> _buildNonRatioHandles(Color borderColor) {
+    return [
+      _buildResizeHandle(
+        top: -4 / widget.scale,
+        left: 0,
+        width: _width,
+        height: 9 / widget.scale,
+        cursor: SystemMouseCursors.resizeUpDown,
+        direction: ScaleDirection.topCenter,
+      ),
+      _buildResizeHandle(
+        bottom: -4 / widget.scale,
+        left: 0,
+        width: _width,
+        height: 9 / widget.scale,
+        cursor: SystemMouseCursors.resizeUpDown,
+        direction: ScaleDirection.bottomCenter,
+      ),
+      _buildResizeHandle(
+        top: 0,
+        left: -4 / widget.scale,
+        width: 9 / widget.scale,
+        height: _height,
+        cursor: SystemMouseCursors.resizeLeftRight,
+        direction: ScaleDirection.centerLeft,
+      ),
+      _buildResizeHandle(
+        top: 0,
+        right: -4 / widget.scale,
+        width: 9 / widget.scale,
+        height: _height,
+        cursor: SystemMouseCursors.resizeLeftRight,
+        direction: ScaleDirection.centerRight,
+      ),
+    ];
+  }
+
+  List<Widget> _buildCornerHandles(Color borderColor) {
+    return [
+      _buildCornerHandle(
+        top: -4 / widget.scale,
+        left: -4 / widget.scale,
+        alignment: Alignment.topLeft,
+        direction: ScaleDirection.topLeft,
+        borderColor: borderColor,
+      ),
+      _buildCornerHandle(
+        top: -4 / widget.scale,
+        right: -4 / widget.scale,
+        alignment: Alignment.topRight,
+        direction: ScaleDirection.topRight,
+        borderColor: borderColor,
+      ),
+      _buildCornerHandle(
+        bottom: -4 / widget.scale,
+        left: -4 / widget.scale,
+        alignment: Alignment.bottomLeft,
+        direction: ScaleDirection.bottomLeft,
+        borderColor: borderColor,
+      ),
+      _buildCornerHandle(
+        bottom: -4 / widget.scale,
+        right: -4 / widget.scale,
+        alignment: Alignment.bottomRight,
+        direction: ScaleDirection.bottomRight,
+        borderColor: borderColor,
+      ),
+    ];
+  }
+
+  Widget _buildResizeHandle({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required double width,
+    required double height,
+    required MouseCursor cursor,
+    required ScaleDirection direction,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: DeferPointer(
+        child: MouseRegion(
+          cursor: cursor,
+          child: GestureDetector(
+            onPanStart: (d) => _onScalingStart(),
+            onPanUpdate: (details) => _onScaling(details, direction),
+            onPanEnd: (details) => _onScalingEnd(details),
+            supportedDevices: const {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+            child: Container(
+              width: width,
+              height: height,
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCornerHandle({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required Alignment alignment,
+    required ScaleDirection direction,
+    required Color borderColor,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: DeferPointer(
+        child: GestureDetector(
+          onPanStart: (d) => _onScalingStart(),
+          onPanUpdate: (details) => _onScaling(details, direction),
+          onPanEnd: (details) => _onScalingEnd(details),
+          supportedDevices: const {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+          },
+          child: Container(
+            width: 9 / widget.scale,
+            height: 9 / widget.scale,
+            decoration: buildBorder(alignment, borderColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRotationHandle(Color borderColor) {
+    return Positioned.fill(
+      top: -20,
+      child: DeferPointer(
+        child: GestureDetector(
+          onPanStart: (details) {
+            _startingAngle = _finalAngle;
+          },
+          onPanUpdate: (details) {
+            final center = Rect.fromLTWH(0, 0, _width, _height).center;
+            final newAngle = getAngleFromPoints(center, details.localPosition);
+            setState(() {
+              _finalAngle = _startingAngle + newAngle + pi / 2;
+            });
+            widget.onChange(_getCurrentBoxInfo);
+          },
+          onPanEnd: (details) {
+            _prevAngle = _finalAngle;
+            widget.onChange(_getCurrentBoxInfo);
+          },
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Container(height: 20, width: 2, color: borderColor),
+              MouseRegion(
+                cursor: SystemMouseCursors.grab,
+                child: Container(
+                  width: 9,
+                  height: 9,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.white,
+                    border: Border.all(width: 1.2, color: borderColor),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Rest of the methods remain the same...
   BoxDecoration buildBorder(Alignment alignment, Color borderColor) {
     return BoxDecoration(
       color: Colors.white,
@@ -477,23 +354,20 @@ class _CraftorMovableState extends State<CraftorMovable> {
     );
   }
 
-  void _onScaling(
-    DragUpdateDetails update,
-    ScaleDirection scaleDirection,
-  ) {
+  void _onScaling(DragUpdateDetails update, ScaleDirection scaleDirection) {
+    if (!widget.isSelected) return;
+    
     final ScaleInfo current = ScaleInfo(
       width: _width,
       height: _height,
       x: _x,
       y: _y,
     );
-    final double dx = update.delta.dx;
-    final double dy = update.delta.dy;
-
+    
     final ScaleInfoOpt scaleInfoOpt = ScaleInfoOpt(
       scaleDirection: scaleDirection,
-      dx: dx,
-      dy: dy,
+      dx: update.delta.dx,
+      dy: update.delta.dy,
       rotateAngle: _finalAngle,
     );
 
@@ -503,33 +377,23 @@ class _CraftorMovableState extends State<CraftorMovable> {
       options: scaleInfoOpt,
     );
 
-    double updatedWidth = scaleInfoAfterCalculation.width;
-    double updatedHeight = scaleInfoAfterCalculation.height;
-    double updatedXPosition = scaleInfoAfterCalculation.x;
-    double updatedYPosition = scaleInfoAfterCalculation.y;
-
-    if (_isWidthUnderscale(updatedWidth) ||
-        _isHeightUnderscale(updatedHeight)) {
+    if (_isWidthUnderscale(scaleInfoAfterCalculation.width) ||
+        _isHeightUnderscale(scaleInfoAfterCalculation.height)) {
       return;
     }
 
     setState(() {
-      _width = updatedWidth;
-      _height = updatedHeight;
-      _x = updatedXPosition;
-      _y = updatedYPosition;
+      _width = scaleInfoAfterCalculation.width;
+      _height = scaleInfoAfterCalculation.height;
+      _x = scaleInfoAfterCalculation.x;
+      _y = scaleInfoAfterCalculation.y;
     });
 
     widget.onChange(_getCurrentBoxInfo);
   }
 
-  bool _isWidthUnderscale(double width) {
-    return width <= 0;
-  }
-
-  bool _isHeightUnderscale(double height) {
-    return height <= 0;
-  }
+  bool _isWidthUnderscale(double width) => width <= 0;
+  bool _isHeightUnderscale(double height) => height <= 0;
 
   MovableInfo get _getCurrentBoxInfo => MovableInfo(
         size: Size(_width, _height),
@@ -538,45 +402,38 @@ class _CraftorMovableState extends State<CraftorMovable> {
       );
 
   void _onScalingEnd(DragEndDetails details) {
-    widget.onChangeEnd?.call();
+    if (widget.isSelected) {
+      widget.onChangeEnd?.call();
+    }
   }
 
   void _onScalingStart() {
-    widget.onChangeStart?.call();
+    if (widget.isSelected) {
+      widget.onChangeStart?.call();
+    }
   }
 
   void _onMoving(DragUpdateDetails update) {
-    double updatedXPosition = _x;
-    double updatedYPosition = _y;
-
-    updatedXPosition += (update.delta.dx);
-    updatedYPosition += (update.delta.dy);
-
+    if (!widget.isSelected) return;
+    
     setState(() {
-      _x = updatedXPosition;
-      _y = updatedYPosition;
+      _x += update.delta.dx;
+      _y += update.delta.dy;
     });
 
     widget.onChange(_getCurrentBoxInfo);
   }
 }
 
-/// Get the angle radian between two points
 double getAngleFromPoints(Offset point1, Offset point2) {
   return atan2(point2.dy - point1.dy, point2.dx - point1.dx);
 }
 
-/// Rotate a point around an origin by an angle degree
 Offset rotatePoint(Offset point, Offset origin, double angle) {
   final cosTheta = cos(angle * pi / 180);
   final sinTheta = sin(angle * pi / 180);
-
   final oPoint = point - origin;
-  final x = oPoint.dx;
-  final y = oPoint.dy;
-
-  final newX = x * cosTheta - y * sinTheta;
-  final newY = x * sinTheta + y * cosTheta;
-
+  final newX = oPoint.dx * cosTheta - oPoint.dy * sinTheta;
+  final newY = oPoint.dx * sinTheta + oPoint.dy * cosTheta;
   return Offset(newX, newY) + origin;
 }

@@ -22,16 +22,18 @@ class _PageContentState extends State<PageContent> {
   Offset? startPoint;
   Offset? currentPoint;
   bool isDrawing = false;
-  // bool isMovableActive = false;
   Path? currentPath;
   Path? eraserPath;
   final double eraserWidth = 20.0;
   final GlobalKey repaintBoundaryKey = GlobalKey();
+  
+  // Add movable state variables
+  MovableInfo? movableInfo;
+  bool isSelected = true;
 
   @override
   void initState() {
     super.initState();
-    // Set the key in the provider
     Provider.of<ExportHandlerProvider>(context, listen: false)
         .setRepaintBoundaryKey(repaintBoundaryKey);
   }
@@ -41,15 +43,17 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
-    MovableInfo? movableObject;
+
     void _addMovableTextBox(Offset start, Offset end) {
       final rect = Rect.fromPoints(start, end);
-      // pageContentProvider.addText(
-      //   currentPage,
-      //   rect,
-      //   text: 'Double click to edit',
-      // );
-      
+      setState(() {
+        movableInfo = MovableInfo(
+          size: rect.size,
+          position: rect.topLeft,
+          rotateAngle: 0,
+        );
+        isSelected = true;
+      });
     }
 
     return Stack(
@@ -135,39 +139,49 @@ class _PageContentState extends State<PageContent> {
             ),
           ),
 
-        CraftorMovable(
-          isSelected: false,
-          keepRatio: RawKeyboard.instance.keysPressed
-              .contains(LogicalKeyboardKey.shiftLeft),
-          scale: 1,
-          scaleInfo: info,
-          onTapInside: () => (),
-          onTapOutside: (_) => (),
-          onChange: (newInfo) {
-            setState(() {
-              info = newInfo;
-            });
-          },
-          child: TextField(
-            maxLines: null,
-            style: const TextStyle(
-              color: Colors.black,
-              height: 1, // Reduce line height
+        // Movable text box
+        if (movableInfo != null)
+          CraftorMovable(
+            isSelected: isSelected,
+            keepRatio: RawKeyboard.instance.keysPressed
+                .contains(LogicalKeyboardKey.shiftLeft),
+            scale: 1,
+            scaleInfo: movableInfo!,
+            onTapInside: () => setState(() => isSelected = true),
+            onTapOutside: (_) => setState(() => isSelected = false),
+            onChange: (newInfo) => setState(() => movableInfo = newInfo),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: isSelected ? Colors.blue : Colors.grey,
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                maxLines: null,
+                expands: true,
+                style: const TextStyle(
+                  color: Colors.black,
+                  height: 1,
+                ),
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.all(8.0),
+                  border: InputBorder.none,
+                ),
+              ),
             ),
-            expands: true,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-            ),
-            onChanged: (newText) {},
           ),
-        ),
+
         if (currentMode == EditMode.lazer)
           LaserPointer(isActive: currentMode == EditMode.lazer)
       ],
     );
   }
 
+  // ... rest of your methods remain the same
   void handleToolStart(
     DragStartDetails details,
     EditMode? mode,
