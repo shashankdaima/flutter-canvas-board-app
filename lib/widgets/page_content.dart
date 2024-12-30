@@ -29,7 +29,6 @@ class _PageContentState extends State<PageContent> {
   TextEditingController textController = TextEditingController();
   // Add movable state variables
   MovableInfo? movableInfo;
-  bool isSelected = true;
 
   @override
   void initState() {
@@ -51,7 +50,6 @@ class _PageContentState extends State<PageContent> {
       }
 
       setState(() {
-        isSelected = false;
         movableInfo = null;
       });
     }
@@ -64,7 +62,6 @@ class _PageContentState extends State<PageContent> {
           position: rect.topLeft,
           rotateAngle: 0,
         );
-        isSelected = true;
       });
     }
 
@@ -154,36 +151,25 @@ class _PageContentState extends State<PageContent> {
         // Movable text box
         if (movableInfo != null)
           CraftorMovable(
-            isSelected: isSelected,
+            isSelected: true,
             keepRatio: RawKeyboard.instance.keysPressed
                 .contains(LogicalKeyboardKey.shiftLeft),
             scale: 1,
             scaleInfo: movableInfo!,
-            onTapInside: () => setState(() => isSelected = true),
+            onTapInside: () => {},
             onTapOutside: (_) => saveMovableContent(),
             onChange: (newInfo) => setState(() => movableInfo = newInfo),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: isSelected ? Colors.blue : Colors.grey,
-                  width: 1,
-                ),
+            child: TextField(
+              maxLines: null,
+              controller: textController,
+              expands: true,
+              style: const TextStyle(
+                color: Colors.black,
+                height: 1,
               ),
-              child: TextField(
-                maxLines: null,
-                controller: textController,
-                expands: true,
-                style: const TextStyle(
-                  color: Colors.black,
-                  height: 1,
-                ),
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.zero,
-                  border: InputBorder.none,
-                ),
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.zero,
+                border: InputBorder.none,
               ),
             ),
           ),
