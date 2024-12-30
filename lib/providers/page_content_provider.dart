@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:canvas_app/models/drawing_elements/text_element.dart';
 import 'package:flutter/material.dart';
 import 'package:movable/movable.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
+import '../models/drawing_elements/image_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
 
 class PageContentProvider extends ChangeNotifier {
@@ -11,6 +14,22 @@ class PageContentProvider extends ChangeNotifier {
 
   // Counter for generating z-indices per page
   final Map<int, int> _zIndexCounters = {};
+
+  Uint8List? _imageBitMap;
+
+  Uint8List? get imageBitMap => _imageBitMap;
+
+  void setImageBitMap(Uint8List? image) {
+    _imageBitMap = image;
+    notifyListeners();
+  }
+
+  void clearImageBitMap() {
+    _imageBitMap = null;
+    notifyListeners();
+  }
+
+
 
   // Get all elements for a page
   List<DrawingElement> getPageElements(int pageIndex) {
@@ -52,6 +71,23 @@ class PageContentProvider extends ChangeNotifier {
       zIndex: zIndex,
       bounds: bounds,
       isSelected: false
+    );
+
+    _pageElements.putIfAbsent(pageIndex, () => []).add(element);
+
+    // Sort elements by z-index after adding
+    _pageElements[pageIndex]?.sort((a, b) => a.zIndex.compareTo(b.zIndex));
+    notifyListeners();
+  }
+  void addImage(int pageIndex, Uint8List imageData, Rect bounds) {
+    final zIndex = _getNextZIndex(pageIndex);
+
+    // Create an image element with the given bounds and image data
+    final element = ImageElement(
+      imageProvider: MemoryImage(imageData),
+      zIndex: zIndex,
+      bounds: bounds,
+      isSelected: false,
     );
 
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);

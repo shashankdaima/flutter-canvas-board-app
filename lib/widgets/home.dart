@@ -7,6 +7,7 @@ import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/canvas_provider.dart';
+import '../utils/image_upload_handler.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -278,11 +279,22 @@ class Home extends StatelessWidget {
                         color: editModeProvider.currentMode == EditMode.image
                             ? theme.colorScheme.primary
                             : null,
-                        onPressed: () {
+                        onPressed: () async {
                           if (editModeProvider.currentMode == EditMode.image) {
                             editModeProvider.setMode(null);
                           } else {
                             editModeProvider.setMode(EditMode.image);
+                            // Handle image upload
+                            final imageBytes =
+                                await ImageUploadHandler.pickImage(context);
+                            if (imageBytes != null) {
+                              // Add the image to your canvas or page content
+                              Provider.of<PageContentProvider>(context,
+                                      listen: false)
+                                  .setImageBitMap(imageBytes);
+                            } else {
+                              editModeProvider.setMode(EditMode.image);
+                            }
                           }
                         },
                         style: ButtonStyle(

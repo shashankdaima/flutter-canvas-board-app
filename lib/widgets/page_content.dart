@@ -30,6 +30,11 @@ class _PageContentState extends State<PageContent> {
   // Add movable state variables
   MovableInfo? movableInfo;
 
+  MovableInfo imageMovableInfo = MovableInfo(
+    size: const Size(100, 100), // Default size
+    position: const Offset(0, 0), // Center of the page will be set later
+    rotateAngle: 0,
+  );
   @override
   void initState() {
     super.initState();
@@ -48,9 +53,25 @@ class _PageContentState extends State<PageContent> {
             text: textController.text);
         textController.clear();
       }
-
+      if(pageContentProvider.imageBitMap!=null){
+        if (pageContentProvider.imageBitMap != null) {
+          final imageBounds = Rect.fromLTWH(
+            imageMovableInfo.position.dx,
+            imageMovableInfo.position.dy,
+            imageMovableInfo.size.width,
+            imageMovableInfo.size.height,
+          );
+          pageContentProvider.addImage(currentPage, pageContentProvider.imageBitMap!, imageBounds);
+          pageContentProvider.clearImageBitMap();
+        }
+      }
       setState(() {
         movableInfo = null;
+        imageMovableInfo = MovableInfo(
+          size: const Size(100, 100),
+          position: const Offset(0, 0),
+          rotateAngle: 0,
+        );
       });
     }
 
@@ -70,25 +91,27 @@ class _PageContentState extends State<PageContent> {
         // Background container
         RepaintBoundary(
           key: repaintBoundaryKey,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: CustomPaint(
-              painter: PagePainter(
-                elements: pageContentProvider.getPageElements(currentPage),
-                eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
-                eraserWidth: eraserWidth,
+          child: ClipRect( // Ensure nothing goes outside the canvas
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              size: Size.infinite,
+              child: CustomPaint(
+                painter: PagePainter(
+                  elements: pageContentProvider.getPageElements(currentPage),
+                  eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
+                  eraserWidth: eraserWidth,
+                ),
+                size: Size.infinite,
+              ),
             ),
           ),
         ),
@@ -149,7 +172,7 @@ class _PageContentState extends State<PageContent> {
           ),
 
         // Movable text box
-        if (movableInfo != null)
+        if (movableInfo != null && currentMode == EditMode.text)
           CraftorMovable(
             isSelected: true,
             keepRatio: RawKeyboard.instance.keysPressed
@@ -173,7 +196,22 @@ class _PageContentState extends State<PageContent> {
               ),
             ),
           ),
-
+        if (pageContentProvider.imageBitMap != null &&
+            currentMode == EditMode.image)
+          CraftorMovable(
+            isSelected: true,
+            keepRatio: RawKeyboard.instance.keysPressed
+                .contains(LogicalKeyboardKey.shiftLeft),
+            scale: 1,
+            scaleInfo: imageMovableInfo,
+            onTapInside: () => {},
+            onTapOutside: (_) => saveMovableContent(),
+            onChange: (newInfo) => setState(() => imageMovableInfo = newInfo),
+            child: Image.memory(
+              pageContentProvider.imageBitMap!,
+              fit: BoxFit.cover,
+            ),
+          ),
         if (currentMode == EditMode.lazer)
           LaserPointer(isActive: currentMode == EditMode.lazer)
       ],

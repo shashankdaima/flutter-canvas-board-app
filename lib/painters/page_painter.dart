@@ -1,3 +1,4 @@
+import 'package:canvas_app/models/drawing_elements/image_element.dart';
 import 'package:flutter/material.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
@@ -41,7 +42,7 @@ class PagePainter extends CustomPainter {
           canvas.drawRect(element.bounds, boundsPaint);
         }
       }
-      if (element is TextElement&& !element.isSelected) {
+      if (element is TextElement && !element.isSelected) {
         final textPainter = TextPainter(
           text: TextSpan(
             text: element.content,
@@ -74,6 +75,41 @@ class PagePainter extends CustomPainter {
         // );
 
         // canvas.drawRect(textBoxRect, textBoxPaint);
+      }
+      if (element is ImageElement && !element.isSelected) {
+        final imageRect = element.bounds;
+        final paint = Paint()
+          ..color = Colors.transparent
+          ..style = PaintingStyle.fill;
+
+        canvas.drawRect(imageRect, paint);
+
+        final image = element.imageProvider.resolve(ImageConfiguration());
+        image.addListener(ImageStreamListener((ImageInfo info, bool _) {
+          final imageSize =
+              Size(info.image.width.toDouble(), info.image.height.toDouble());
+          final srcRect = Offset.zero & imageSize;
+          final dstRect = imageRect;
+
+          // Calculate the scale to cover the destination rectangle
+          final scale = (dstRect.width / srcRect.width).clamp(
+              dstRect.height / srcRect.height, double.infinity);
+
+          final scaledSrcWidth = srcRect.width * scale;
+          final scaledSrcHeight = srcRect.height * scale;
+
+          final srcOffsetX = (scaledSrcWidth - dstRect.width) / 2;
+          final srcOffsetY = (scaledSrcHeight - dstRect.height) / 2;
+
+          final coverSrcRect = Rect.fromLTWH(
+            srcOffsetX,
+            srcOffsetY,
+            dstRect.width / scale,
+            dstRect.height / scale,
+          );
+
+          canvas.drawImageRect(info.image, coverSrcRect, dstRect, Paint());
+        }));
       }
     }
 
