@@ -310,32 +310,6 @@ class Home extends StatelessWidget {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.shape_line),
-                        tooltip: 'Shape',
-                        color: editModeProvider.currentMode == EditMode.shape
-                            ? theme.colorScheme.primary
-                            : null,
-                        onPressed: () {
-                          if (editModeProvider.currentMode == EditMode.shape) {
-                            editModeProvider.setMode(null);
-                          } else {
-                            editModeProvider.setMode(EditMode.shape);
-                          }
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color?>(
-                            (Set<MaterialState> states) {
-                              if (editModeProvider.currentMode ==
-                                  EditMode.shape) {
-                                return Colors.grey.shade900;
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
                     ],
                   );
                 },
