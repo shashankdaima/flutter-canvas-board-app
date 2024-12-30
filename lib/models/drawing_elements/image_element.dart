@@ -5,11 +5,13 @@ import 'drawing_element.dart';
 
 class ImageElement extends DrawingElement {
   final ImageProvider imageProvider;
+  final double angle;
 
   ImageElement({
     required this.imageProvider,
     required super.zIndex,
     required super.bounds,
+    required this.angle,
     super.id,
     super.isSelected,
   }) : super(type: DrawingElementType.image);
@@ -19,6 +21,7 @@ class ImageElement extends DrawingElement {
     int? zIndex,
     Rect? bounds,
     bool? isSelected,
+    double? angle,
   }) {
     return ImageElement(
       id: id,
@@ -26,6 +29,7 @@ class ImageElement extends DrawingElement {
       zIndex: zIndex ?? this.zIndex,
       bounds: bounds ?? this.bounds,
       isSelected: isSelected ?? this.isSelected,
+      angle: angle ?? this.angle,
     );
   }
 }

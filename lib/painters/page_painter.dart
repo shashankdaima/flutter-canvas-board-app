@@ -108,7 +108,23 @@ class PagePainter extends CustomPainter {
             dstRect.height / scale,
           );
 
+          // Save the current canvas state
+          canvas.save();
+
+          // Translate to the center of the imageRect
+          canvas.translate(dstRect.center.dx, dstRect.center.dy);
+
+          // Rotate the canvas by the element's angle
+          canvas.rotate(element.angle);
+
+          // Translate back by half of the imageRect size
+          canvas.translate(-dstRect.center.dx, -dstRect.center.dy);
+
+          // Draw the image with rotation
           canvas.drawImageRect(info.image, coverSrcRect, dstRect, Paint());
+
+          // Restore the canvas to its previous state
+          canvas.restore();
         }));
       }
     }

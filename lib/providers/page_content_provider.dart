@@ -29,8 +29,6 @@ class PageContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
   // Get all elements for a page
   List<DrawingElement> getPageElements(int pageIndex) {
     final elements = _pageElements.putIfAbsent(pageIndex, () => []);
@@ -67,11 +65,7 @@ class PageContentProvider extends ChangeNotifier {
 
     // Create a text element with the given bounds and text
     final element = TextElement(
-      content: text ?? '',
-      zIndex: zIndex,
-      bounds: bounds,
-      isSelected: false
-    );
+        content: text ?? '', zIndex: zIndex, bounds: bounds, isSelected: false);
 
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);
 
@@ -79,16 +73,17 @@ class PageContentProvider extends ChangeNotifier {
     _pageElements[pageIndex]?.sort((a, b) => a.zIndex.compareTo(b.zIndex));
     notifyListeners();
   }
-  void addImage(int pageIndex, Uint8List imageData, Rect bounds) {
+
+  void addImage(int pageIndex, Uint8List imageData, Rect bounds, double angle) {
     final zIndex = _getNextZIndex(pageIndex);
 
     // Create an image element with the given bounds and image data
     final element = ImageElement(
-      imageProvider: MemoryImage(imageData),
-      zIndex: zIndex,
-      bounds: bounds,
-      isSelected: false,
-    );
+        imageProvider: MemoryImage(imageData),
+        zIndex: zIndex,
+        bounds: bounds,
+        isSelected: false,
+        angle: angle);
 
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);
 

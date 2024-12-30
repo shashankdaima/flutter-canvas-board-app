@@ -61,7 +61,7 @@ class _PageContentState extends State<PageContent> {
             imageMovableInfo.size.width,
             imageMovableInfo.size.height,
           );
-          pageContentProvider.addImage(currentPage, pageContentProvider.imageBitMap!, imageBounds);
+          pageContentProvider.addImage(currentPage, pageContentProvider.imageBitMap!, imageBounds, imageMovableInfo.rotateAngle);
           pageContentProvider.clearImageBitMap();
         }
       }
