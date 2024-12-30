@@ -31,14 +31,14 @@ class CraftorMovable extends StatefulWidget {
 
   final bool keepRatio;
   final double scale;
-  final movableInfo scaleInfo;
+  final MovableInfo scaleInfo;
   final Function()? onDoubleTap;
 
   final Function() onTapInside;
   final Function(PointerDownEvent e) onTapOutside;
   final Function(TapDownDetails)? onSecondaryTapDown;
 
-  final Function(movableInfo) onChange;
+  final Function(MovableInfo) onChange;
   final Function()? onChangeEnd;
   final Function()? onChangeStart;
 
@@ -531,7 +531,7 @@ class _CraftorMovableState extends State<CraftorMovable> {
     return height <= 0;
   }
 
-  movableInfo get _getCurrentBoxInfo => movableInfo(
+  MovableInfo get _getCurrentBoxInfo => MovableInfo(
         size: Size(_width, _height),
         position: Offset(_x, _y),
         rotateAngle: _finalAngle,

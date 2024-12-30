@@ -5,7 +5,7 @@ import 'package:movable/movable.dart';
 
 class TextElement extends DrawingElement {
   final String content;
-  final movableInfo info;
+  final MovableInfo info;
 
   TextElement({
     required this.content,
@@ -13,7 +13,7 @@ class TextElement extends DrawingElement {
     required super.bounds,
     super.id,
     super.isSelected,
-  })  : info = movableInfo(
+  })  : info = MovableInfo(
           size: Size(bounds.width, bounds.height),
           position: Offset(bounds.left, bounds.top),
           rotateAngle: 0,

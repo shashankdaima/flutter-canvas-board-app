@@ -41,18 +41,15 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
-    movableInfo info = movableInfo(
-      size: const Size(100, 100),
-      position: const Offset(10, 10),
-      rotateAngle: 0,
-    );
+    MovableInfo? movableObject;
     void _addMovableTextBox(Offset start, Offset end) {
       final rect = Rect.fromPoints(start, end);
-      pageContentProvider.addText(
-        currentPage,
-        rect,
-        text: 'Double click to edit',
-      );
+      // pageContentProvider.addText(
+      //   currentPage,
+      //   rect,
+      //   text: 'Double click to edit',
+      // );
+      
     }
 
     return Stack(

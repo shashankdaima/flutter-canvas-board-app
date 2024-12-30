@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class movableInfo {
+class MovableInfo {
   Size size;
   Offset position;
   double rotateAngle;
 
-  movableInfo({
+  MovableInfo({
     required this.size,
     required this.position,
     required this.rotateAngle,
@@ -16,8 +16,8 @@ class movableInfo {
   double get width => size.width;
   double get height => size.height;
 
-  movableInfo copyWith({Size? size, Offset? position, double? rotateAngle}) {
-    return movableInfo(
+  MovableInfo copyWith({Size? size, Offset? position, double? rotateAngle}) {
+    return MovableInfo(
       size: size ?? this.size,
       position: position ?? this.position,
       rotateAngle: rotateAngle ?? this.rotateAngle,

@@ -12,7 +12,7 @@ class MovableExample extends StatefulWidget {
 }
 
 class _MovableExampleState extends State<MovableExample> {
-  movableInfo info = movableInfo(
+  MovableInfo info = MovableInfo(
     size: const Size(100, 100),
     position: const Offset(10, 10),
     rotateAngle: 0,

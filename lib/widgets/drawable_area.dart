@@ -16,15 +16,15 @@ class _DrawableAreaState extends State<DrawableArea> {
   bool isDrawing = false;
   bool isMovableActive = false;
 
-  movableInfo? activeMovableInfo;
+  MovableInfo? activeMovableInfo;
 
-  List<movableInfo> movableItems = [];
+  List<MovableInfo> movableItems = [];
 
   void _printRectangleInfo(Offset start, Offset end) {
     final rect = Rect.fromPoints(start, end);
     setState(() {
       movableItems.add(
-        movableInfo(
+        MovableInfo(
           size: Size(rect.width, rect.height),
           position: Offset(rect.left, rect.top),
           rotateAngle: 0,
@@ -33,7 +33,7 @@ class _DrawableAreaState extends State<DrawableArea> {
     });
   }
 
-  void _onMovableTapInside(movableInfo info) {
+  void _onMovableTapInside(MovableInfo info) {
     setState(() {
       isMovableActive = true;
       activeMovableInfo = info;
