@@ -26,7 +26,7 @@ class _PageContentState extends State<PageContent> {
   Path? eraserPath;
   final double eraserWidth = 20.0;
   final GlobalKey repaintBoundaryKey = GlobalKey();
-  
+  TextEditingController textController = TextEditingController();
   // Add movable state variables
   MovableInfo? movableInfo;
   bool isSelected = true;
@@ -43,7 +43,6 @@ class _PageContentState extends State<PageContent> {
     final currentMode = Provider.of<EditModeProvider>(context).currentMode;
     final pageContentProvider = Provider.of<PageContentProvider>(context);
     final currentPage = Provider.of<CanvasState>(context).currentPage;
-
     void _addMovableTextBox(Offset start, Offset end) {
       final rect = Rect.fromPoints(start, end);
       setState(() {
@@ -162,13 +161,14 @@ class _PageContentState extends State<PageContent> {
               ),
               child: TextField(
                 maxLines: null,
+                controller: textController,
                 expands: true,
                 style: const TextStyle(
                   color: Colors.black,
                   height: 1,
                 ),
                 decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(8.0),
+                  contentPadding: EdgeInsets.zero,
                   border: InputBorder.none,
                 ),
               ),
