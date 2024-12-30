@@ -1,13 +1,8 @@
-import 'dart:io' as io;
-import 'dart:typed_data';
 import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../providers/export_handler_provider.dart';
-import 'dart:html' as html;
 
 import '../utils/download_utils.dart';
 

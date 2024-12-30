@@ -29,12 +29,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      home: MultiProvider(providers: [
-        ChangeNotifierProvider(create: (_) => CanvasState()),
-        ChangeNotifierProvider(create: (_) => EditModeProvider()),
-        ChangeNotifierProvider(create: (_) => PageContentProvider()),
-        ChangeNotifierProvider(create: (_) => ExportHandlerProvider()),
-      ], child: const Scaffold(body: Home())),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => CanvasState()),
+          ChangeNotifierProvider(create: (_) => EditModeProvider()),
+          ChangeNotifierProvider(create: (_) => PageContentProvider()),
+          ChangeNotifierProvider(create: (_) => ExportHandlerProvider()),
+        ],
+        child: const SafeArea(
+          child: Scaffold(body: Home()),
+        ),
+      ),
     );
   }
 }
