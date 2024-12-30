@@ -6,10 +6,9 @@ Canvas App is a minimal viable product (MVP) version of tldraw, built using Flut
 
 To see Canvas App in action, check out the demo video below:
 
-<video controls>
-  <source src="./readme-assets/video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/0402dfdd-0cd6-41d6-97eb-2e40b931500a
+
+
 
 
 ## Overview
