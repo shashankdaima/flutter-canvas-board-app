@@ -49,11 +49,15 @@ class _PageContentState extends State<PageContent> {
     final currentPage = Provider.of<CanvasState>(context).currentPage;
     void saveMovableContent() {
       if (movableInfo != null) {
-        pageContentProvider.addText(currentPage, movableInfo!.rect,
-            text: textController.text);
+        pageContentProvider.addText(
+          currentPage,
+          movableInfo!.rect,
+          movableInfo!.rotateAngle,
+          text: textController.text,
+        );
         textController.clear();
       }
-      if(pageContentProvider.imageBitMap!=null){
+      if (pageContentProvider.imageBitMap != null) {
         if (pageContentProvider.imageBitMap != null) {
           final imageBounds = Rect.fromLTWH(
             imageMovableInfo.position.dx,
@@ -61,7 +65,11 @@ class _PageContentState extends State<PageContent> {
             imageMovableInfo.size.width,
             imageMovableInfo.size.height,
           );
-          pageContentProvider.addImage(currentPage, pageContentProvider.imageBitMap!, imageBounds, imageMovableInfo.rotateAngle);
+          pageContentProvider.addImage(
+              currentPage,
+              pageContentProvider.imageBitMap!,
+              imageBounds,
+              imageMovableInfo.rotateAngle);
           pageContentProvider.clearImageBitMap();
         }
       }
@@ -91,7 +99,8 @@ class _PageContentState extends State<PageContent> {
         // Background container
         RepaintBoundary(
           key: repaintBoundaryKey,
-          child: ClipRect( // Ensure nothing goes outside the canvas
+          child: ClipRect(
+            // Ensure nothing goes outside the canvas
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -107,7 +116,8 @@ class _PageContentState extends State<PageContent> {
               child: CustomPaint(
                 painter: PagePainter(
                   elements: pageContentProvider.getPageElements(currentPage),
-                  eraserPath: currentMode == EditMode.erasor ? eraserPath : null,
+                  eraserPath:
+                      currentMode == EditMode.erasor ? eraserPath : null,
                   eraserWidth: eraserWidth,
                 ),
                 size: Size.infinite,

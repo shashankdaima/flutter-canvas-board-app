@@ -11,12 +11,13 @@ class TextElement extends DrawingElement {
     required this.content,
     required super.zIndex,
     required super.bounds,
+    required double angle,
     super.id,
     super.isSelected,
   })  : info = MovableInfo(
           size: Size(bounds.width, bounds.height),
           position: Offset(bounds.left, bounds.top),
-          rotateAngle: 0,
+          rotateAngle: angle,
         ),
         super(type: DrawingElementType.text);
 
@@ -41,11 +42,13 @@ class TextElement extends DrawingElement {
     int? zIndex,
     Rect? bounds,
     bool? isSelected,
+    double? angle,
   }) {
     return TextElement(
       content: content,
       zIndex: zIndex ?? this.zIndex,
       bounds: bounds ?? this.bounds,
+      angle: angle ?? info.rotateAngle,
       id: id,
       isSelected: isSelected ?? this.isSelected,
     );

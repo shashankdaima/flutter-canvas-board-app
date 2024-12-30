@@ -60,12 +60,16 @@ class PageContentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addText(int pageIndex, Rect bounds, {String? text}) {
+  void addText(int pageIndex, Rect bounds, double rotateAngle, {String? text}) {
     final zIndex = _getNextZIndex(pageIndex);
 
     // Create a text element with the given bounds and text
     final element = TextElement(
-        content: text ?? '', zIndex: zIndex, bounds: bounds, isSelected: false);
+        content: text ?? '',
+        zIndex: zIndex,
+        bounds: bounds,
+        angle: rotateAngle,
+        isSelected: false);
 
     _pageElements.putIfAbsent(pageIndex, () => []).add(element);
 

@@ -60,16 +60,32 @@ class PagePainter extends CustomPainter {
           maxWidth: element.info.size.width,
         );
 
-        final textOffset = element.info.position;
-        textPainter.paint(canvas, textOffset);
+        // Save the current canvas state
+        canvas.save();
+
+        // Translate to the center of the text box
+        final textCenter = element.info.position + Offset(element.info.size.width / 2, element.info.size.height / 2);
+        canvas.translate(textCenter.dx, textCenter.dy);
+
+        // Rotate the canvas by 90 degrees (right angle)
+        canvas.rotate(element.info.rotateAngle);
+
+        // Translate back by half of the text box size
+        canvas.translate(-textCenter.dx, -textCenter.dy);
+
+        // Paint the text
+        textPainter.paint(canvas, element.info.position);
+
+        // Restore the canvas to its previous state
+        canvas.restore();
 
         // final textBoxPaint = Paint()
         //   ..color = Colors.black
         //   ..style = PaintingStyle.stroke;
 
         // final textBoxRect = Rect.fromLTWH(
-        //   textOffset.dx,
-        //   textOffset.dy,
+        //   element.info.position.dx,
+        //   element.info.position.dy,
         //   element.info.size.width,
         //   element.info.size.height,
         // );
