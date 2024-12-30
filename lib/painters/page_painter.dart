@@ -62,18 +62,18 @@ class PagePainter extends CustomPainter {
         final textOffset = element.info.position;
         textPainter.paint(canvas, textOffset);
 
-        final textBoxPaint = Paint()
-          ..color = Colors.black
-          ..style = PaintingStyle.stroke;
+        // final textBoxPaint = Paint()
+        //   ..color = Colors.black
+        //   ..style = PaintingStyle.stroke;
 
-        final textBoxRect = Rect.fromLTWH(
-          textOffset.dx,
-          textOffset.dy,
-          element.info.size.width,
-          element.info.size.height,
-        );
+        // final textBoxRect = Rect.fromLTWH(
+        //   textOffset.dx,
+        //   textOffset.dy,
+        //   element.info.size.width,
+        //   element.info.size.height,
+        // );
 
-        canvas.drawRect(textBoxRect, textBoxPaint);
+        // canvas.drawRect(textBoxRect, textBoxPaint);
       }
     }
 
