@@ -22,5 +22,7 @@ abstract class DrawingElement {
     Rect? bounds,
     bool? isSelected,
   });
+  Map<String, dynamic> toJson();
+
 }
 

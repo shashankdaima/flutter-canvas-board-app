@@ -40,6 +40,14 @@ class _PageContentState extends State<PageContent> {
     super.initState();
     Provider.of<ExportHandlerProvider>(context, listen: false)
         .setRepaintBoundaryKey(repaintBoundaryKey);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox? renderBox =
+          repaintBoundaryKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final size = renderBox.size;
+        Provider.of<CanvasState>(context, listen: false).setCanvasSize(size);
+      }
+    });
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -79,6 +80,37 @@ Future<void> webDownload(BuildContext context, Uint8List bytes, String filename)
     );
   }
 }
+Future<void> jsonDownload(BuildContext context, dynamic data, String filename) async {
+  try {
+    final jsonString = json.encode(data);
+    final bytes = Uint8List.fromList(utf8.encode(jsonString));
+    
+    await compute<Map<String, dynamic>, void>(
+      (message) {
+        final bytes = message['bytes'] as Uint8List;
+        final filename = message['filename'] as String;
+        
+        final blob = html.Blob([bytes], 'application/json');
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement()
+          ..href = url
+          ..style.display = 'none'
+          ..download = filename.endsWith('.json') ? filename : '$filename.json';
+        
+        html.document.body?.children.add(anchor);
+        anchor.click();
+        html.document.body?.children.remove(anchor);
+        html.Url.revokeObjectUrl(url);
+      },
+      {'bytes': bytes, 'filename': filename},
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error during JSON download: $e')),
+    );
+  }
+}
+
 
 // Mobile download function
 Future<void> mobileDownload(

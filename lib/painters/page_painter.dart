@@ -1,10 +1,13 @@
 import 'package:canvas_app/models/drawing_elements/image_element.dart';
 import 'package:flutter/material.dart';
 
+import '../config.dart';
 import '../models/drawing_elements/drawing_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
 import '../models/drawing_elements/text_element.dart';
 import '../widgets/page_content.dart';
+
+final showBoundaryBoxes = DRAW_BOUNDARY_BOXES&&false;
 
 class PagePainter extends CustomPainter {
   final List<DrawingElement> elements;
@@ -32,8 +35,7 @@ class PagePainter extends CustomPainter {
           ..style = PaintingStyle.stroke;
 
         canvas.drawPath(element.path, paint);
-
-        if (element.isSelected) {
+        if (showBoundaryBoxes) {
           final boundsPaint = Paint()
             ..color = Colors.blue
             ..strokeWidth = 1.0
@@ -64,7 +66,8 @@ class PagePainter extends CustomPainter {
         canvas.save();
 
         // Translate to the center of the text box
-        final textCenter = element.info.position + Offset(element.info.size.width / 2, element.info.size.height / 2);
+        final textCenter = element.info.position +
+            Offset(element.info.size.width / 2, element.info.size.height / 2);
         canvas.translate(textCenter.dx, textCenter.dy);
 
         // Rotate the canvas by 90 degrees (right angle)
@@ -78,19 +81,20 @@ class PagePainter extends CustomPainter {
 
         // Restore the canvas to its previous state
         canvas.restore();
+        if (showBoundaryBoxes) {
+          final textBoxPaint = Paint()
+            ..color = Colors.black
+            ..style = PaintingStyle.stroke;
 
-        // final textBoxPaint = Paint()
-        //   ..color = Colors.black
-        //   ..style = PaintingStyle.stroke;
+          final textBoxRect = Rect.fromLTWH(
+            element.info.position.dx,
+            element.info.position.dy,
+            element.info.size.width,
+            element.info.size.height,
+          );
 
-        // final textBoxRect = Rect.fromLTWH(
-        //   element.info.position.dx,
-        //   element.info.position.dy,
-        //   element.info.size.width,
-        //   element.info.size.height,
-        // );
-
-        // canvas.drawRect(textBoxRect, textBoxPaint);
+          canvas.drawRect(textBoxRect, textBoxPaint);
+        }
       }
       if (element is ImageElement && !element.isSelected) {
         final imageRect = element.bounds;
@@ -108,8 +112,8 @@ class PagePainter extends CustomPainter {
           final dstRect = imageRect;
 
           // Calculate the scale to cover the destination rectangle
-          final scale = (dstRect.width / srcRect.width).clamp(
-              dstRect.height / srcRect.height, double.infinity);
+          final scale = (dstRect.width / srcRect.width)
+              .clamp(dstRect.height / srcRect.height, double.infinity);
 
           final scaledSrcWidth = srcRect.width * scale;
           final scaledSrcHeight = srcRect.height * scale;

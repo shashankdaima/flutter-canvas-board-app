@@ -41,7 +41,7 @@ dependencies:
   pdf: ^3.10.8
   file_picker: ^5.2.0
   image_picker: ^0.8.6
-
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:

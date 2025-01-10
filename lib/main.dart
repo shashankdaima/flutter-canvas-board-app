@@ -4,6 +4,7 @@ import 'package:canvas_app/providers/page_content_provider.dart';
 import 'package:canvas_app/widgets/drawable_area.dart';
 import 'package:canvas_app/widgets/home.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/export_handler_provider.dart';

@@ -21,22 +21,6 @@ class TextElement extends DrawingElement {
         ),
         super(type: DrawingElementType.text);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'content': content,
-      'position': {
-        'x': info.position.dx,
-        'y': info.position.dy,
-      },
-      'size': {
-        'width': info.size.width,
-        'height': info.size.height,
-      },
-      'rotateAngle': info.rotateAngle,
-    };
-  }
-
   @override
   TextElement copyWith({
     int? zIndex,
@@ -53,4 +37,22 @@ class TextElement extends DrawingElement {
       isSelected: isSelected ?? this.isSelected,
     );
   }
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': 'text',
+      'id': id,
+      'zIndex': zIndex,
+      'bounds': {
+        'left': bounds.left,
+        'top': bounds.top,
+        'right': bounds.right,
+        'bottom': bounds.bottom,
+      },
+      'isSelected': isSelected,
+      'content': content,
+      'angle': info.rotateAngle,
+    };
+  }
+
 }

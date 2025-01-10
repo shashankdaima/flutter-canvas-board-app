@@ -32,4 +32,22 @@ class ImageElement extends DrawingElement {
       angle: angle ?? this.angle,
     );
   }
+  
+  @override
+  Map<String, dynamic> toJson() {
+    // TODO: implement toJson
+    return {
+      'type': 'image',
+      'id': id,
+      'zIndex': zIndex,
+      'bounds': {
+        'left': bounds.left,
+        'top': bounds.top,
+        'right': bounds.right,
+        'bottom': bounds.bottom,
+      },
+      'isSelected': isSelected,
+      'angle': angle,
+    };
+  }
 }

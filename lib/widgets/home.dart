@@ -1,13 +1,23 @@
 // home.dart
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:canvas_app/providers/edit_mode_provider.dart';
+import 'package:canvas_app/utils/canvas_state_boundaries_util.dart';
 import 'package:canvas_app/widgets/export_button.dart';
 import 'package:canvas_app/widgets/page_content.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
 import 'package:canvas_app/widgets/split_button.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import '../config.dart';
+
 import '../providers/canvas_provider.dart';
+import '../utils/download_utils.dart';
 import '../utils/image_upload_handler.dart';
+
+final logger = Logger();
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -310,6 +320,15 @@ class Home extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (DEBUG_STATE)
+                        IconButton(
+                          icon: const Icon(Icons.download),
+                          tooltip: 'Generate JSON',
+                          onPressed: () {
+                            final jsonData = getCanvasJsonData(context);
+                            jsonDownload(context, jsonData, 'canvas');
+                          },
+                        ),
                     ],
                   );
                 },

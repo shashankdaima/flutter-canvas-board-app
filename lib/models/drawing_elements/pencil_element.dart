@@ -27,5 +27,23 @@ class PencilElement extends DrawingElement {
       isSelected: isSelected ?? this.isSelected,
     );
   }
+  
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': 'pencil',
+      'id': id,
+      'zIndex': zIndex,
+      'bounds': {
+        'left': bounds.left,
+        'top': bounds.top,
+        'right': bounds.right,
+        'bottom': bounds.bottom,
+      },
+      'isSelected': isSelected,
+      'path': path.toString(),
+    };
+  }
+
 }
 
