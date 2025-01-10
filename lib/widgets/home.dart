@@ -16,6 +16,7 @@ import '../config.dart';
 import '../providers/canvas_provider.dart';
 import '../utils/download_utils.dart';
 import '../utils/image_upload_handler.dart';
+import 'api_loading_widget.dart';
 
 final logger = Logger();
 
@@ -84,6 +85,10 @@ class Home extends StatelessWidget {
                         },
                       ),
                       const Spacer(),
+                      ApiLoadingWidget(
+                          status: ApiStatus.loading,
+                          errorMessage: 'Failed to connect to server'),
+                      const SizedBox(width: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 4),
