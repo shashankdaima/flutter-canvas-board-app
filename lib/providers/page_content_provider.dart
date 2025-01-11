@@ -1,16 +1,37 @@
 import 'dart:typed_data';
 
 import 'package:canvas_app/models/drawing_elements/text_element.dart';
+import 'package:canvas_app/providers/export_handler_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:movable/movable.dart';
+import 'package:provider/provider.dart';
 
 import '../models/drawing_elements/drawing_element.dart';
 import '../models/drawing_elements/image_element.dart';
 import '../models/drawing_elements/pencil_element.dart';
+import '../utils/canvas_state_boundaries_util.dart';
+import '../utils/debouncer.dart';
+import '../utils/download_utils.dart';
+import '../utils/intellisense_api.dart';
+import '../utils/logger.dart';
+import '../widgets/api_loading_widget.dart';
+import 'canvas_provider.dart';
 
 class PageContentProvider extends ChangeNotifier {
+  BuildContext? _context;
+  ApiStatus intellisenseStatus = ApiStatus.success;
+  String? errorMessage;
+  PageContentProvider();
+
+  void setContext(BuildContext context) {
+    _context = context;
+  }
+
   // Store elements per page
   final Map<int, List<DrawingElement>> _pageElements = {};
+  final Debouncer _debouncer =
+      Debouncer(delay: const Duration(milliseconds: 5000));
 
   // Counter for generating z-indices per page
   final Map<int, int> _zIndexCounters = {};
@@ -18,6 +39,42 @@ class PageContentProvider extends ChangeNotifier {
   Uint8List? _imageBitMap;
 
   Uint8List? get imageBitMap => _imageBitMap;
+
+  void startIntellisense() {
+    if (_context == null) return;
+    _debouncer.run(() async {
+      intellisenseStatus = ApiStatus.loading;
+      notifyListeners();
+      final exportProvider =
+          Provider.of<ExportHandlerProvider>(_context!, listen: false);
+      final imageBytes = await exportProvider.exportDrawing();
+      final metaJson = getCanvasJsonData(_context!);
+      if (imageBytes != null) {
+        try {
+          final result = await IntellisenseApi.solve(
+              file: imageBytes, canvasData: metaJson);
+          intellisenseStatus = ApiStatus.success;
+          errorMessage = null;
+          logger.i(result);
+          notifyListeners();
+          return;
+        } catch (e) {
+          intellisenseStatus = ApiStatus.error;
+          errorMessage = e.toString();
+          notifyListeners();
+          return;
+        }
+
+      } else if (exportProvider.errorMessage != null && _context != null) {
+        intellisenseStatus = ApiStatus.error;
+        errorMessage = exportProvider.errorMessage!;
+        notifyListeners();
+        ScaffoldMessenger.of(_context!).showSnackBar(
+          SnackBar(content: Text(exportProvider.errorMessage!)),
+        );
+      }
+    });
+  }
 
   void setImageBitMap(Uint8List? image) {
     _imageBitMap = image;
@@ -44,6 +101,7 @@ class PageContentProvider extends ChangeNotifier {
 
   // Add a new drawing element
   void addDrawing(int pageIndex, Path path) {
+    startIntellisense();
     final bounds = path.getBounds();
     final zIndex = _getNextZIndex(pageIndex);
 
@@ -61,6 +119,7 @@ class PageContentProvider extends ChangeNotifier {
   }
 
   void addText(int pageIndex, Rect bounds, double rotateAngle, {String? text}) {
+    startIntellisense();
     final zIndex = _getNextZIndex(pageIndex);
 
     // Create a text element with the given bounds and text
@@ -79,6 +138,7 @@ class PageContentProvider extends ChangeNotifier {
   }
 
   void addImage(int pageIndex, Uint8List imageData, Rect bounds, double angle) {
+    startIntellisense();
     final zIndex = _getNextZIndex(pageIndex);
 
     // Create an image element with the given bounds and image data
@@ -155,6 +215,7 @@ class PageContentProvider extends ChangeNotifier {
 
   // Clear page elements
   void clearPage(int pageIndex) {
+    startIntellisense();
     _pageElements[pageIndex]?.clear();
     _zIndexCounters[pageIndex] = 0;
     notifyListeners();
@@ -162,6 +223,7 @@ class PageContentProvider extends ChangeNotifier {
 
   // Clear all pages
   void clearAllPages() {
+    startIntellisense();
     _pageElements.clear();
     _zIndexCounters.clear();
     notifyListeners();
@@ -171,5 +233,6 @@ class PageContentProvider extends ChangeNotifier {
     final elements = getPageElements(pageIndex);
     elements.removeWhere((element) => element.id == elementId);
     notifyListeners();
+    startIntellisense();
   }
 }

@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 
 class IntellisenseApi {
   static const String baseUrl = 'https://canvasai-api.shashankdaima.com';
 
   static Future<dynamic> solve({
-    required File file,
+    required Uint8List file,
     required Map<String, dynamic> canvasData,
   }) async {
     try {
@@ -14,13 +14,10 @@ class IntellisenseApi {
       var request = http.MultipartRequest('POST', uri);
       
       // Add file to request
-      var fileStream = http.ByteStream(file.openRead());
-      var length = await file.length();
-      var multipartFile = http.MultipartFile(
+      var multipartFile = http.MultipartFile.fromBytes(
         'file',
-        fileStream,
-        length,
-        filename: file.path.split('/').last
+        file,
+        filename: 'image.png'
       );
       request.files.add(multipartFile);
       

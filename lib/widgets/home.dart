@@ -26,7 +26,8 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final intellisenseStatus = Provider.of<PageContentProvider>(context, listen: true).intellisenseStatus;
+    final intellisenseStatusError = Provider.of<PageContentProvider>(context, listen: true).errorMessage;
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: Stack(
@@ -86,8 +87,8 @@ class Home extends StatelessWidget {
                       ),
                       const Spacer(),
                       ApiLoadingWidget(
-                          status: ApiStatus.loading,
-                          errorMessage: 'Failed to connect to server'),
+                          status: intellisenseStatus,
+                          errorMessage: intellisenseStatusError),
                       const SizedBox(width: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(

@@ -32,13 +32,20 @@ class MyApp extends StatelessWidget {
       ),
       home: MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (_) => ExportHandlerProvider()),
           ChangeNotifierProvider(create: (_) => CanvasState()),
           ChangeNotifierProvider(create: (_) => EditModeProvider()),
           ChangeNotifierProvider(create: (_) => PageContentProvider()),
-          ChangeNotifierProvider(create: (_) => ExportHandlerProvider()),
         ],
-        child: const SafeArea(
-          child: Scaffold(body: Home()),
+        child: Builder(
+          builder: (context) {
+            // Set context after provider is created
+            Provider.of<PageContentProvider>(context, listen: false)
+                .setContext(context);
+            return const SafeArea(
+              child: Scaffold(body: Home()),
+            );
+          },
         ),
       ),
     );
