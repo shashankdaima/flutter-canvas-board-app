@@ -11,7 +11,7 @@ class PencilElement extends DrawingElement {
     required super.bounds,
     super.id,
     super.isSelected,
-  }) : super(type: DrawingElementType.pencil);
+  }) : super(elementType: DrawingElementType.pencil);
 
   @override
   PencilElement copyWith({

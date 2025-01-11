@@ -6,14 +6,14 @@ abstract class DrawingElement {
   final String id;
   final int zIndex;
   final Rect bounds;
-  final DrawingElementType type;
+  final DrawingElementType elementType;
   bool isSelected;
 
   DrawingElement({
     String? id,
     required this.zIndex,
     required this.bounds,
-    required this.type,
+    required this.elementType,
     this.isSelected = false,
   }) : id = id ?? UniqueKey().toString();
 

@@ -3,4 +3,5 @@ enum DrawingElementType {
   shape,
   text,
   image,
+  aiIntellisense
 }

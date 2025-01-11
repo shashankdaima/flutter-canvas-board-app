@@ -14,7 +14,7 @@ class ImageElement extends DrawingElement {
     required this.angle,
     super.id,
     super.isSelected,
-  }) : super(type: DrawingElementType.image);
+  }) : super(elementType: DrawingElementType.image);
 
   @override
   ImageElement copyWith({

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:canvas_app/models/drawing_elements/ai_intellisense_element.dart';
 import 'package:canvas_app/models/drawing_elements/text_element.dart';
 import 'package:canvas_app/providers/export_handler_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,7 @@ class PageContentProvider extends ChangeNotifier {
   ApiStatus intellisenseStatus = ApiStatus.success;
   String? errorMessage;
   PageContentProvider();
+  List<AiIntellisenseElement> aiIntellisenseElements = [];
 
   void setContext(BuildContext context) {
     _context = context;
@@ -55,7 +57,8 @@ class PageContentProvider extends ChangeNotifier {
               file: imageBytes, canvasData: metaJson);
           intellisenseStatus = ApiStatus.success;
           errorMessage = null;
-          logger.i(result);
+          final List<dynamic> resultsList = result['results'] ?? [];
+          aiIntellisenseElements = resultsList.map((item) => AiIntellisenseElement.fromJson(item)).toList();
           notifyListeners();
           return;
         } catch (e) {

@@ -19,7 +19,7 @@ class TextElement extends DrawingElement {
           position: Offset(bounds.left, bounds.top),
           rotateAngle: angle,
         ),
-        super(type: DrawingElementType.text);
+        super(elementType: DrawingElementType.text);
 
   @override
   TextElement copyWith({
