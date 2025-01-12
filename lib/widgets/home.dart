@@ -17,6 +17,8 @@ import '../providers/canvas_provider.dart';
 import '../utils/download_utils.dart';
 import '../utils/image_upload_handler.dart';
 import 'api_loading_widget.dart';
+import 'package:canvas_app/providers/toast_provider.dart';
+import 'package:canvas_app/widgets/ai_suggestion_toast.dart';
 
 final logger = Logger();
 
@@ -28,6 +30,12 @@ class Home extends StatelessWidget {
     final theme = Theme.of(context);
     final intellisenseStatus = Provider.of<PageContentProvider>(context, listen: true).intellisenseStatus;
     final intellisenseStatusError = Provider.of<PageContentProvider>(context, listen: true).errorMessage;
+
+    // Show default toast after frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ToastProvider>().showToast("Welcome! Try our AI-powered drawing suggestions");
+    });
+
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: Stack(
@@ -47,8 +55,7 @@ class Home extends StatelessWidget {
                       minScale: 0.1,
                       maxScale: 5.0,
                       panEnabled:
-                          Provider.of<EditModeProvider>(context).currentMode ==
-                              null,
+                          Provider.of<EditModeProvider>(context).currentMode == null,
                       child: Center(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
@@ -105,6 +112,34 @@ class Home extends StatelessWidget {
                       const SizedBox(width: 16),
                       const ExportButton(),
                     ],
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // AI Suggestion Toast
+          Positioned(
+            top: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Consumer<ToastProvider>(
+                builder: (context, toastProvider, _) {
+                  if (!toastProvider.isVisible) return const SizedBox.shrink();
+                  return AiSuggestionToast(
+                    message: toastProvider.message ?? '',
+                    onAccept: () {
+                      // Handle accept action
+                      logger.d('AI suggestion accepted');
+                    },
+                    onReject: () {
+                      // Handle reject action
+                      logger.d('AI suggestion rejected');
+                    },
+                    onDismiss: () {
+                      toastProvider.hideToast();
+                    },
                   );
                 },
               ),

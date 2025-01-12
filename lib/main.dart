@@ -1,6 +1,7 @@
 import 'package:canvas_app/providers/canvas_provider.dart';
 import 'package:canvas_app/providers/edit_mode_provider.dart';
 import 'package:canvas_app/providers/page_content_provider.dart';
+import 'package:canvas_app/providers/toast_provider.dart';
 import 'package:canvas_app/widgets/drawable_area.dart';
 import 'package:canvas_app/widgets/home.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => CanvasState()),
           ChangeNotifierProvider(create: (_) => EditModeProvider()),
           ChangeNotifierProvider(create: (_) => PageContentProvider()),
+          ChangeNotifierProvider(create: (_) => ToastProvider()),
         ],
         child: Builder(
           builder: (context) {
