@@ -31,11 +31,6 @@ class Home extends StatelessWidget {
     final intellisenseStatus = Provider.of<PageContentProvider>(context, listen: true).intellisenseStatus;
     final intellisenseStatusError = Provider.of<PageContentProvider>(context, listen: true).errorMessage;
 
-    // Show default toast after frame is rendered
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ToastProvider>().showToast("Welcome! Try our AI-powered drawing suggestions");
-    });
-
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: Stack(

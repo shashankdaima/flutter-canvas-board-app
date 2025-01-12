@@ -8,6 +8,7 @@ import '../providers/canvas_provider.dart';
 import '../providers/edit_mode_provider.dart';
 import '../providers/export_handler_provider.dart';
 import '../providers/page_content_provider.dart';
+import '../providers/toast_provider.dart';
 import '../utils/erasor_collision_util_function.dart';
 import 'lazer_pointer.dart';
 
@@ -41,7 +42,12 @@ class _PageContentState extends State<PageContent> {
     super.initState();
     Provider.of<ExportHandlerProvider>(context, listen: false)
         .setRepaintBoundaryKey(repaintBoundaryKey);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context
+          .read<ToastProvider>()
+          .showToast("Welcome! Try our AI-powered drawing suggestions");
+
       final RenderBox? renderBox =
           repaintBoundaryKey.currentContext?.findRenderObject() as RenderBox?;
       if (renderBox != null) {
@@ -238,22 +244,25 @@ class _PageContentState extends State<PageContent> {
             keepRatio: RawKeyboard.instance.keysPressed
                 .contains(LogicalKeyboardKey.shiftLeft),
             scale: 1,
-            scaleInfo: aiSuggestionMovableInfo ?? MovableInfo(
-              size: Size(
-                pageContentProvider.aiIntellisenseElements.first.bounds.width,
-                pageContentProvider.aiIntellisenseElements.first.bounds.height,
-              ),
-              position: Offset(
-                pageContentProvider.aiIntellisenseElements.first.bounds.left,
-                pageContentProvider.aiIntellisenseElements.first.bounds.top,
-              ),
-              rotateAngle: 0,
-            ),
+            scaleInfo: aiSuggestionMovableInfo ??
+                MovableInfo(
+                  size: Size(
+                    pageContentProvider
+                        .aiIntellisenseElements.first.bounds.width,
+                    pageContentProvider
+                        .aiIntellisenseElements.first.bounds.height,
+                  ),
+                  position: Offset(
+                    pageContentProvider
+                        .aiIntellisenseElements.first.bounds.left,
+                    pageContentProvider.aiIntellisenseElements.first.bounds.top,
+                  ),
+                  rotateAngle: 0,
+                ),
             onTapInside: () => {},
-            onTapOutside: (_) => {
-              
-            },
-            onChange: (newInfo) => setState(() => aiSuggestionMovableInfo = newInfo),
+            onTapOutside: (_) => {},
+            onChange: (newInfo) =>
+                setState(() => aiSuggestionMovableInfo = newInfo),
             child: Stack(
               children: [
                 Center(
