@@ -29,12 +29,13 @@ class _PageContentState extends State<PageContent> {
   TextEditingController textController = TextEditingController();
   // Add movable state variables
   MovableInfo? movableInfo;
-
   MovableInfo imageMovableInfo = MovableInfo(
     size: const Size(100, 100), // Default size
     position: const Offset(0, 0), // Center of the page will be set later
     rotateAngle: 0,
   );
+  MovableInfo? aiSuggestionMovableInfo;
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +67,7 @@ class _PageContentState extends State<PageContent> {
         textController.clear();
       }
       if (pageContentProvider.imageBitMap != null) {
-        if (pageContentProvider.imageBitMap != null) {
+        if (imageMovableInfo != null) {
           final imageBounds = Rect.fromLTWH(
             imageMovableInfo.position.dx,
             imageMovableInfo.position.dy,
@@ -84,10 +85,11 @@ class _PageContentState extends State<PageContent> {
       setState(() {
         movableInfo = null;
         imageMovableInfo = MovableInfo(
-          size: const Size(100, 100),
-          position: const Offset(0, 0),
+          size: const Size(100, 100), // Default size
+          position: const Offset(0, 0), // Center of the page will be set later
           rotateAngle: 0,
         );
+        aiSuggestionMovableInfo = null;
       });
     }
 
@@ -230,8 +232,52 @@ class _PageContentState extends State<PageContent> {
               fit: BoxFit.cover,
             ),
           ),
+        if (pageContentProvider.aiIntellisenseElements.isNotEmpty)
+          CraftorMovable(
+            isSelected: true,
+            keepRatio: RawKeyboard.instance.keysPressed
+                .contains(LogicalKeyboardKey.shiftLeft),
+            scale: 1,
+            scaleInfo: aiSuggestionMovableInfo ?? MovableInfo(
+              size: Size(
+                pageContentProvider.aiIntellisenseElements.first.bounds.width,
+                pageContentProvider.aiIntellisenseElements.first.bounds.height,
+              ),
+              position: Offset(
+                pageContentProvider.aiIntellisenseElements.first.bounds.left,
+                pageContentProvider.aiIntellisenseElements.first.bounds.top,
+              ),
+              rotateAngle: 0,
+            ),
+            onTapInside: () => {},
+            onTapOutside: (_) => {
+              
+            },
+            onChange: (newInfo) => setState(() => aiSuggestionMovableInfo = newInfo),
+            child: Stack(
+              children: [
+                Center(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      double fontSize = constraints.maxWidth * 0.3;
+                      return Text(
+                        pageContentProvider.aiIntellisenseElements.first.result
+                            .toString(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          height: 1,
+                          fontSize: fontSize,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (currentMode == EditMode.lazer)
-          LaserPointer(isActive: currentMode == EditMode.lazer)
+          LaserPointer(isActive: currentMode == EditMode.lazer),
       ],
     );
   }
